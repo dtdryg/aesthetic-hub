@@ -1,0 +1,485 @@
+/* ═══════════════════════════════════════════════════════
+   UserProfile.css — Aesthetic Hub
+═══════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap');
+
+/* ── Trigger wrapper — fixed top right ──────────────── */
+.up-wrap {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 9999;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ── Trigger button ─────────────────────────────────── */
+.up-trigger {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid #2a0a3a;
+  background: #111;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  overflow: visible;
+  box-shadow:
+    0 0 6px rgba(155,93,229,0.2),
+    0 0 14px rgba(180,0,60,0.1);
+  animation: aura-pulse 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes aura-pulse {
+  from {
+    box-shadow:
+      0 0 5px rgba(155,93,229,0.15),
+      0 0 10px rgba(180,0,60,0.08);
+  }
+  to {
+    box-shadow:
+      0 0 10px rgba(155,93,229,0.3),
+      0 0 22px rgba(180,0,60,0.15),
+      0 0 35px rgba(155,93,229,0.08);
+  }
+}
+
+.up-trigger-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.up-trigger-initials {
+  font-family: 'Space Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  color: #c77dff;
+}
+
+.up-online-dot { display: none; }
+
+/* ── Dropdown ───────────────────────────────────────── */
+.up-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: auto;
+  left: 0;
+  width: 260px;
+  background: #0a0a0a;
+  border: 1px solid #1e1e1e;
+  border-radius: 14px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.7), 0 0 0 1px #111;
+  z-index: 9999;
+  overflow: hidden;
+  animation: up-drop-in 0.15s ease;
+}
+
+@keyframes up-drop-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Header ─────────────────────────────────────────── */
+.up-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+}
+
+.up-header-avatar-wrap { flex-shrink: 0; }
+
+.up-header-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #222;
+}
+
+.up-header-initials {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1e1e3f, #2d0a4a);
+  color: #c77dff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  border: 1.5px solid #3a1a5a;
+}
+
+.up-header-text { min-width: 0; flex: 1; }
+
+.up-header-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.up-header-username {
+  font-size: 11px;
+  color: #555;
+  font-family: 'Space Mono', monospace;
+  margin-top: 1px;
+}
+
+.up-email-status {
+  font-size: 10px;
+  margin-top: 3px;
+  font-family: 'Space Mono', monospace;
+}
+.up-email-status.ev  { color: #3dff8f; }
+.up-email-status.euv { color: #ff9500; }
+
+/* ── Divider ────────────────────────────────────────── */
+.up-divider {
+  height: 1px;
+  background: #111;
+  margin: 2px 0;
+}
+
+/* ── Menu items ─────────────────────────────────────── */
+.up-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 11px 16px;
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+  letter-spacing: 0.02em;
+}
+.up-item:hover { background: #111; color: #fff; }
+.up-item--warn { color: #ff9500; }
+.up-item--warn:hover { background: #1a0f00; }
+.up-item--danger { color: #ff4d4d; }
+.up-item--danger:hover { background: #1a0000; }
+
+/* ── Panel ──────────────────────────────────────────── */
+.up-panel {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.up-panel-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f0f0f0;
+  font-family: 'Space Mono', monospace;
+  margin-bottom: 2px;
+  letter-spacing: 0.05em;
+}
+
+.up-panel-sub {
+  font-size: 12px;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+.up-success { color: #3dff8f !important; }
+
+/* ── Avatar preview ─────────────────────────────────── */
+.up-avatar-preview {
+  display: flex;
+  justify-content: center;
+  margin: 4px 0;
+}
+.up-avatar-preview-img {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #222;
+}
+.up-avatar-preview-blank {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1e1e3f, #2d0a4a);
+  color: #c77dff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  font-family: 'Space Mono', monospace;
+  border: 2px solid #3a1a5a;
+}
+
+/* ── Section label ──────────────────────────────────── */
+.up-section-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #444;
+  font-family: 'Space Mono', monospace;
+}
+
+/* ── File input ─────────────────────────────────────── */
+.up-file-input {
+  font-size: 11px;
+  color: #888;
+  background: #0e0e0e;
+  border: 1px solid #1e1e1e;
+  border-radius: 8px;
+  padding: 6px;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* ── Color row ──────────────────────────────────────── */
+.up-color-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+.up-color-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 10px;
+  color: #555;
+  font-family: 'Space Mono', monospace;
+  cursor: pointer;
+}
+.up-color-item input[type="color"] {
+  width: 36px;
+  height: 28px;
+  border: 1px solid #222;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  padding: 2px;
+}
+
+/* ── Inputs ─────────────────────────────────────────── */
+.up-input {
+  width: 100%;
+  background: #0e0e0e;
+  border: 1px solid #1e1e1e;
+  border-radius: 8px;
+  color: #e0e0e0;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  padding: 9px 12px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+.up-input:focus { border-color: #3a1a5a; }
+.up-input::placeholder { color: #333; }
+.up-textarea { resize: vertical; min-height: 70px; }
+
+/* ── Actions ────────────────────────────────────────── */
+.up-actions { display: flex; gap: 8px; }
+
+.up-btn-primary {
+  flex: 1;
+  padding: 9px;
+  background: #9b5de5;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-family: 'Space Mono', monospace;
+}
+.up-btn-primary:hover:not(:disabled) { background: #b07af5; }
+.up-btn-primary:disabled { background: #333; cursor: not-allowed; }
+
+.up-btn-secondary {
+  padding: 9px 14px;
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 8px;
+  color: #888;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  font-family: 'Space Mono', monospace;
+  white-space: nowrap;
+}
+.up-btn-secondary:hover { background: #1a1a1a; color: #ccc; }
+
+/* ══════════════════════════════════════════════════════
+   VERIFIED BADGE
+══════════════════════════════════════════════════════ */
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+  filter: drop-shadow(0 0 4px #9b5de5) drop-shadow(0 0 8px #c77dff);
+  animation: vb-glow 2.5s ease-in-out infinite alternate;
+  cursor: default;
+}
+
+@keyframes vb-glow {
+  from { filter: drop-shadow(0 0 3px #9b5de5) drop-shadow(0 0 6px #c77dff); }
+  to   { filter: drop-shadow(0 0 7px #c77dff) drop-shadow(0 0 14px #9b5de5); }
+}
+
+/* ══════════════════════════════════════════════════════
+   OWNER PANEL
+══════════════════════════════════════════════════════ */
+.owner-panel {
+  background: #0a0a0a;
+  border: 1px solid #1e1e1e;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 320px;
+}
+
+.owner-panel-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #c77dff;
+  letter-spacing: 0.05em;
+}
+
+.owner-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.owner-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: #111;
+  border-radius: 8px;
+  border: 1px solid #1a1a1a;
+}
+
+.owner-row-name {
+  font-size: 13px;
+  color: #ccc;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.owner-verify-btn {
+  padding: 5px 12px;
+  background: #0f0a1f;
+  border: 1px solid #3a1a5a;
+  border-radius: 6px;
+  color: #c77dff;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Space Mono', monospace;
+  transition: all 0.2s;
+}
+.owner-verify-btn:hover {
+  background: #1e0a3f;
+  border-color: #9b5de5;
+  box-shadow: 0 0 10px rgba(155,93,229,0.3);
+}
+
+.owner-verified-label {
+  font-size: 11px;
+  color: #3dff8f;
+  font-family: 'Space Mono', monospace;
+}
+
+/* ══════════════════════════════════════════════════════
+   PUBLIC PROFILE CARD
+══════════════════════════════════════════════════════ */
+.pub-profile {
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  border-radius: 16px;
+  overflow: hidden;
+  max-width: 340px;
+}
+
+.pub-banner { height: 70px; width: 100%; }
+
+.pub-body {
+  padding: 0 16px 16px;
+  position: relative;
+}
+
+.pub-avatar-wrap {
+  margin-top: -30px;
+  margin-bottom: 10px;
+}
+
+.pub-avatar {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #0a0a0a;
+}
+
+.pub-avatar--gen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+  font-family: 'Space Mono', monospace;
+  color: #fff;
+}
+
+.pub-info { display: flex; flex-direction: column; gap: 3px; }
+
+.pub-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pub-username {
+  font-size: 12px;
+  color: #555;
+  font-family: 'Space Mono', monospace;
+}
+
+.pub-bio {
+  font-size: 13px;
+  color: #888;
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.pub-ev {
+  font-size: 11px;
+  color: #3dff8f;
+  margin-top: 4px;
+  font-family: 'Space Mono', monospace;
+}

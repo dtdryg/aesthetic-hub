@@ -1,0 +1,65 @@
+[
+  {
+    "username": "admin",
+    "password": "$2b$10$lFPSuloEeIW5TSZ5qNv/POJHYnCTvljj2foM2EndQpAls4kjtETlq",
+    "friends": [
+      "1"
+    ],
+    "avatar": "/avatars/6356810cce7d747659a7bbdcec8e2a7c",
+    "notifications": [
+      "1 accepted your friend request"
+    ]
+  },
+  {
+    "username": "user 1",
+    "password": "$2b$10$pFQ3LQFFDUYIAL2FlDNArO2Ihr6BzPmJBdLHD1abcaMjr8QuzrcGu",
+    "friends": [],
+    "requests": [],
+    "avatar": "",
+    "notifications": []
+  },
+  {
+    "username": "1",
+    "password": "$2b$10$8m5bknwOoP1t18cRhYERr.Sp6i5.6B2lsmnmpyxgnNlT8huGCzNDO",
+    "friends": [
+      "admin",
+      "2"
+    ],
+    "requests": [],
+    "avatar": "/avatars/undefined-1752198545043.png",
+    "notifications": [
+      "You got a friend request from admin",
+      "You got a friend request from 2"
+    ]
+  },
+  {
+    "username": "2",
+    "password": "$2b$10$pduYGxigFenOQdSuesk6/u0UmTUkBsdwfBY2.o1n/zdgH5l0s9HVu",
+    "friends": [
+      "1"
+    ],
+    "requests": [],
+    "avatar": "/avatars/1752170298436.png",
+    "notifications": [
+      "1 accepted your friend request"
+    ]
+  },
+  {
+    "username": "z",
+    "password": "$2a$10$S7XgF93C0kB5Z.GpZgkA3uqXQ5ZLgUbi4eE/V/SCfY4vVHtFbzxWy",
+    "friends": [],
+    "requests": [],
+    "avatar": "",
+    "notifications": []
+  },
+  {
+    "username": "Z",
+    "password": "$2b$10$7wu3ZEFtKG52MVVs8MRB7O2NqLFIc1dtBa5dR7BeRbi7.gCrjz87.",
+    "email": null,
+    "address": null,
+    "friends": [],
+    "requests": [],
+    "avatar": "",
+    "notifications": []
+  }
+]

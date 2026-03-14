@@ -1,0 +1,59 @@
+.purple-room-container {
+  padding: 30px;
+  text-align: center;
+}
+
+.purple-title {
+  font-size: 3rem;
+  color: #c084fc;
+  animation: glow 2s infinite ease-in-out;
+}
+
+@keyframes glow {
+  0% { text-shadow: 0 0 5px #c084fc, 0 0 10px #a855f7; }
+  100% { text-shadow: 0 0 20px #9333ea, 0 0 30px #7e22ce; }
+}
+
+.purple-box-outline {
+  margin: 30px auto;
+  border: 2px solid #9333ea;
+  border-radius: 15px;
+  padding: 20px;
+  width: 80%;
+  animation: border-pulse 3s infinite;
+}
+
+@keyframes border-pulse {
+  0% { border-color: #9333ea; }
+  50% { border-color: #c084fc; }
+  100% { border-color: #9333ea; }
+}
+
+textarea {
+  width: 100%;
+  height: 100px;
+  margin-top: 10px;
+  font-size: 1rem;
+}
+
+.endorse-button {
+  background: #9333ea;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.endorse-button:hover {
+  box-shadow: 0 0 20px #c084fc;
+}
+
+.mod-panel {
+  margin-top: 40px;
+  border: 1px dashed #a855f7;
+  padding: 20px;
+  background: #faf5ff;
+}

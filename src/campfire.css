@@ -1,0 +1,400 @@
+.campfire-wrapper {
+
+  color: white;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  text-align: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+}
+
+.pre-screen {
+  margin-top: 20px;
+  z-index: 10;
+}
+
+.campfire-scene {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.animated-campfire {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 0 30px 10px rgba(255, 100, 0, 0.3);
+}
+
+
+.animated-campfire.talking {
+  box-shadow: 0 0 50px 20px rgba(255, 100, 0, 0.8);
+}
+
+/* Disable unused features */
+.lodge-ring,
+.seat,
+.avatar,
+.chat-box,
+.campfire-pixel {
+  display: none;
+}
+/* 🔥 Fullscreen video background */
+.campfire-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  object-position: center;
+  z-index: -1;
+  filter: brightness(0.7) contrast(1.2);
+}
+
+/* 🌫️ Background motion layer */
+@keyframes floaty {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0.2; }
+  50%  { transform: translate(25px, -25px) scale(1.05); opacity: 0.45; }
+  100% { transform: translate(0, 0) scale(1); opacity: 0.2; }
+}
+
+.ambient-motion {
+  position: absolute;
+  top: -10vh;
+  left: -10vw;
+  width: 130vw;
+  height: 130vh;
+  background: radial-gradient(ellipse at center, rgba(255, 0, 100, 0.07), transparent 80%);
+  animation: floaty 15s ease-in-out infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+.glow-white {
+  text-align:center;
+  font-size: clamp(22px, 3.2vw, 36px);
+  line-height:1.2;
+  margin: 24px auto 16px;
+  width:min(1000px, 92%);
+  animation: glowPulse 2.2s ease-in-out infinite alternate;
+}
+@keyframes glowPulse {
+  0% { text-shadow: 0 0 6px rgba(255,255,255,.9), 0 0 16px rgba(255,255,255,.6); }
+  100% { text-shadow: 0 0 2px rgba(255,255,255,.4), 0 0 6px rgba(255,255,255,.2); }
+}
+
+.campfire-intro, .campfire-choose { padding: 32px 18px 24px; }
+.info-row { display:flex; gap:10px; justify-content:center; margin: 16px 0; flex-wrap:wrap; }
+.info-chip {
+  background:transparent; color:#fff; border:1px solid #555; padding:10px 14px; border-radius:999px;
+  cursor:pointer; transition: border-color .2s;
+}
+.info-chip:hover { border-color:#aaa; }
+.info-chip.wide { width:min(720px, 92%); margin: 6px auto 0; display:block; }
+.info-card {
+  width:min(820px, 92%); margin:10px auto; background:#0d0d0d; border:1px solid #2b2b2b;
+  border-radius:14px; padding:14px; line-height:1.45;
+}
+.intro-actions { display:flex; justify-content:center; margin-top:16px; }
+.continue-btn {
+  background:#fff; color:#000; font-weight:700; padding:10px 18px; border:none; border-radius:10px; cursor:pointer;
+  box-shadow: 0 0 18px rgba(255,255,255,.25);
+}
+
+.choose-title { text-align:center; margin:10px 0 18px; font-size:24px; }
+.choose-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.choose-card {
+  background:#0d0d0d; color:#fff; border:1px solid #2b2b2b; border-radius:14px; padding:16px 20px; min-width:240px;
+  cursor:pointer; text-align:center; transition: border-color .2s, box-shadow .2s;
+}
+.choose-card:hover { border-color:#7f7f7f; box-shadow: 0 0 12px rgba(255,255,255,.12); }
+.choose-sub { display:block; font-size:12px; opacity:.7; margin-top:6px; }
+
+.back-link {
+  background:transparent; color:#bbb; border:none; cursor:pointer; margin-top:14px; text-decoration:underline;
+}
+.footer-actions { margin: 10px 18px; }
+.stake-note { text-align:center; opacity:.75; }
+.campfire-back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.campfire-back-btn:hover {
+  background: rgba(255,255,255,0.15);
+}
+.campfire-title-plain {
+  color: #fff;
+  font-weight: 700;
+  font-size: clamp(22px, 3.2vw, 38px);
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 10px rgba(255,255,255,0.15);
+  margin-bottom: 10px;
+}
+
+/* make sure intro is NOT an overlay blocking tabs */
+.campfire-intro {
+  position: relative;       /* not fixed */
+  z-index: 0;               /* normal stacking */
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 12px;
+}
+.campfire-room {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.campfire-bg-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* ensures full-screen cover */
+  z-index: -1; /* behind everything */
+}
+
+.campfire-overlay {
+  position: relative;
+  z-index: 2;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.campfire-title {
+  font-size: 2.5rem;
+  color: #ffd6ff;
+  text-shadow: 0 0 15px rgba(255, 0, 255, 0.8);
+  margin-bottom: 20px;
+}
+
+.campfire-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.campfire-tabs button {
+  background: rgba(50, 0, 70, 0.6);
+  border: 1px solid #d59aff;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.campfire-tabs button:hover {
+  background: rgba(138, 43, 226, 0.8);
+  transform: scale(1.05);
+}
+
+.campfire-content {
+  background: rgba(0, 0, 0, 0.5);
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: 15px;
+  text-align: left;
+}
+.campfire-room {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.campfire-bg-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
+
+.campfire-overlay {
+  position: relative;
+  z-index: 2;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.campfire-title {
+  font-size: 2.5rem;
+  color: #ffd6ff;
+  text-shadow: 0 0 15px rgba(255, 0, 255, 0.8);
+  margin-bottom: 20px;
+}
+
+.campfire-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.campfire-tabs button {
+  background: rgba(50, 0, 70, 0.6);
+  border: 1px solid #d59aff;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.campfire-tabs button:hover {
+  background: rgba(138, 43, 226, 0.8);
+  transform: scale(1.05);
+}
+
+.campfire-content {
+  background: rgba(0, 0, 0, 0.5);
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: 15px;
+  text-align: left;
+}
+
+/* Video background */
+.campfire-bg-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1; /* keep it behind everything */
+}
+
+/* Overlay content */
+.campfire-overlay {
+  position: relative;
+  z-index: 2;
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Title */
+.campfire-title-plain {
+  font-size: 2.5rem;
+  color: #ffd6ff;
+  text-shadow: 0 0 20px rgba(255, 0, 255, 0.8);
+  margin-bottom: 20px;
+}
+
+/* Buttons & sections */
+.choose-card,
+.stake-btn,
+.back-link,
+button {
+  background: rgba(50, 0, 70, 0.7);
+  border: 1px solid #d59aff;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.choose-card:hover,
+.stake-btn:hover,
+.back-link:hover,
+button:hover {
+  background: rgba(138, 43, 226, 0.9);
+  transform: scale(1.05);
+}
+
+/* Transparent panels */
+.pre-screen,
+.stake-screen,
+.campfire-choose {
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 800px;
+  margin: 20px auto;
+}
+.campfire-bg-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1; /* Push behind UI */
+}
+
+.campfire-overlay {
+  position: relative;
+  z-index: 1; /* UI stays on top */
+  color: white; /* ensure text is visible */
+}
+.campfire-bg-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1; /* keep it behind steps/mining UI */
+}
+.campfire-bg-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1; /* keeps the video behind everything */
+  background-color: black; /* fallback */
+}
+.campfire-bg-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: -1; /* pushes behind everything */
+  background: black; /* fallback if video fails */
+}

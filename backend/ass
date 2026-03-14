@@ -1,0 +1,1054 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+/* Layout polish for feed landing */
+.feed-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr 300px;  /* left / center / right */
+  gap: 16px;
+  align-items: start;
+}
+
+/* Right sidebar sizing */
+.crypto-panel {
+  background: #0b0b0b;
+  border: 1px solid #222;
+  border-radius: 10px;
+  padding: 12px;
+  width: 100%;
+  max-width: 300px;      /* prevent it from growing too wide */
+  position: sticky;
+  top: 12px;             /* stay in view while scrolling */
+}
+
+.crypto-panel h4 {
+  margin: 6px 0 12px;
+}
+
+.crypto-panel .coin {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  background: #111;
+  border: 1px solid #222;
+  margin-bottom: 8px;
+}
+
+.crypto-panel .coin .left {
+  display: flex; align-items: center; gap: 10px;
+}
+
+.crypto-panel img { width: 20px; height: 20px; border-radius: 4px; }
+.crypto-panel .price { font-variant-numeric: tabular-nums; }
+/* --- compact dual login layout --- */
+.login-dual {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 16px;
+  align-items: start;
+  width: min(720px, 92vw);
+}
+
+.login-card {
+  background: #0b0b0b;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.login-title {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.login-sub {
+  opacity: .65;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+/* white glowing slash divider */
+.login-divider {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  color: #fff;
+  font-weight: 900;
+  font-size: 28px;
+  letter-spacing: 2px;
+  text-shadow: 0 0 12px rgba(255,255,255,0.55), 0 0 20px rgba(255,255,255,0.35);
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.25));
+  user-select: none;
+}
+
+/* optional: make the SIWE button visually consistent */
+.siwe-btn {
+  margin: 5px;
+  padding: 8px 12px;
+  background-color: #111;
+  color: white;
+  border: 1px solid #333;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.siwe-btn:hover { background-color: #222; }
+/* --- Dual login layout --- */
+.login-dual {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 16px;
+  align-items: start;
+  width: min(720px, 92vw);
+}
+
+.login-card {
+  background: #0b0b0b;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.login-title {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.login-sub {
+  opacity: .65;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+/* white glowing slash divider */
+.login-divider {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  color: #fff;
+  font-weight: 900;
+  font-size: 28px;
+  letter-spacing: 2px;
+  text-shadow: 0 0 12px rgba(255,255,255,0.55), 0 0 20px rgba(255,255,255,0.35);
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.25));
+  user-select: none;
+}
+
+.siwe-btn {
+  margin: 5px;
+  padding: 8px 12px;
+  background-color: #111;
+  color: white;
+  border: 1px solid #333;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.siwe-btn:hover { background-color: #222; }
+/* index.css */
+button {
+  margin: 5px;
+  padding: 8px 12px;
+  background-color: #222;
+  color: white;
+  border: 1px solid #444;
+  border-radius: 5px;
+  cursor: pointer;
+  width: fit-content;
+  display: inline-block;
+}
+button:hover {
+  background-color: #444;
+}
+input {
+  margin: 5px;
+  padding: 5px;
+  background-color: #111;
+  color: white;
+  border: 1px solid #333;
+  border-radius: 4px;
+  width: fit-content;
+}
+body {
+  background-color: black;
+  color: white;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  font-family: Consolas, monospace;
+}
+
+.container {
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+.logo-area {
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 20px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  background-color: black;
+  z-index: 10;
+}
+.logo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-text {
+  font-size: 34px;
+  font-weight: bold;
+  letter-spacing: 5px;
+  color: white;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.posts-area {
+  flex: 1;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.post {
+  margin-bottom: 30px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.video-player {
+  width: 44vw;
+  max-height: 70vh;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  object-fit: contain;
+}
+.left-panel {
+  position: fixed;
+  top: 120px;
+  left: 20px;
+  width: 220px;
+  background-color: #111;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 10px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.login-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background: #000;
+  padding: 20px;
+  border: 1px solid #222;
+  border-radius: 12px;
+}
+
+.user-box {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background-color: #111;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 10px;
+  z-index: 999;
+  text-align: center;
+}
+.cmd-cursor {
+  display: inline-block;
+  width: 10px;
+  height: 20px;
+  background-color: lime;
+  animation: blink 0.8s steps(2, start) infinite;
+  margin-left: 5px;
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes cmd-spin {
+  0%   { content: "/"; }
+  25%  { content: "-"; }
+  50%  { content: "\\"; }
+  75%  { content: "|"; }
+  100% { content: "/"; }
+}
+
+.cmd-spinner::after {
+  font-size: 34px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 10px;
+  white-space: pre;
+  content: attr(data-frame); /* take text from React */
+}
+
+.upload-input {
+  width: 100%;
+  padding: 8px;
+  background-color: #111;
+  color: white;
+  border: 1px solid #444;
+  border-radius: 5px;
+  font-family: Consolas, monospace;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+.upload-input::file-selector-button {
+  background-color: #222;
+  color: white;
+  border: 1px solid #555;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.upload-input::file-selector-button:hover {
+  background-color: #444;
+}
+.crypto-tab {
+  position: fixed;
+  bottom: 100px;
+  right: 30px;
+  width: 300px;
+  max-height: 60vh;
+  overflow-y: auto;
+  background: #111;
+  color: white;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.feed-layout {
+  display: flex;
+  justify-content: flex-start;
+  gap: 20px;
+  width: 100%;
+}
+
+.crypto-panel {
+  position: fixed;
+  top: 120px;
+  right: 20px;
+  width: 360px;
+  max-width: 330px;
+  min-height: 500px;
+  background: #0b0b0b;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 16px;
+  z-index: 900;
+  box-shadow: 0 0 30px rgba(0,255,200,0.25);
+}
+
+.crypto-panel img {
+  width: 22px;
+  height: 22px;
+  margin-right: 6px;
+}
+
+/* Layout for the tabs row */
+.top-tabs {
+  display: flex;
+  gap: 10px;
+  margin: 10px;
+}
+
+/* Base tab button */
+.tab {
+  position: relative;
+  background: transparent;
+  color: #fff;
+  border: 0;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+/* Optional hover for normal tabs */
+.tab:not(.aesth):hover {
+  background: #111;
+  border: 1px solid #222;
+}
+
+/* ── Rainbow magic just for $AESTH ────────────────────────── */
+@keyframes hueSlide {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 400% 50%; }
+}
+
+/* gradient text */
+.tab.aesth {
+  /* animated rainbow gradient clipped to text */
+  background-image: linear-gradient(90deg,
+    #ff6ec7, #ffd166, #06d6a0, #118ab2, #9b5de5, #ff6ec7
+  );
+  background-size: 400% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: hueSlide 6s linear infinite;
+}
+
+/* underline line (animated) */
+.tab.aesth::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 4px;
+  height: 2px;
+  background-image: linear-gradient(90deg,
+    #ff6ec7, #ffd166, #06d6a0, #118ab2, #9b5de5, #ff6ec7
+  );
+  background-size: 400% 100%;
+  animation: hueSlide 6s linear infinite;
+  filter: drop-shadow(0 0 4px rgba(255,255,255,.35));
+  border-radius: 999px;
+}
+
+/* make it pop when that tab is active */
+.tab.aesth.active::after {
+  height: 3px;
+  bottom: 3px;
+  filter: drop-shadow(0 0 6px rgba(255,255,255,.6));
+}
+
+/* (Optional) remove default focus ring + add nicer focus for keyboard users */
+.tab:focus {
+  outline: none;
+}
+.tab.aesth:focus-visible::after {
+  box-shadow: 0 0 0 4px rgba(255,255,255,.12);
+}
+
+/* Ensure the system cursor is visible everywhere */
+html, body, * { cursor: auto !important; }
+
+.crypto-panel h4 {
+  color: #fff;
+  margin: 6px 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* coin rows look digital/futuristic */
+.crypto-panel .coin {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-variant-numeric: tabular-nums;
+  animation: priceFlicker 1.5s infinite alternate;
+  font-size: 14px;
+}
+
+@keyframes priceFlicker {
+  from { opacity: 0.9; transform: translateY(0px); }
+  to   { opacity: 1;   transform: translateY(-1px); }
+}
+
+.crypto-panel .coin .left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crypto-panel .coin img {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+}
+
+.crypto-panel .coin strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.crypto-panel .coin .price {
+  font-size: 14px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.9;
+}
+
+/* Center posts and make them not hug the left */
+.posts-area {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  background: #0b0b0b;
+  border: 1px solid #222;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.post {
+  background: #0b0b0b;
+  border: 1px solid #222;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+/* === Neon Green LIVE badge to match panel border === */
+.crypto-panel h4 .live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+
+  /* exact same neon green look as the border */
+  color: rgba(0, 255, 120, 0.9);
+  border: 1px solid rgba(0, 255, 120, 0.5);
+  box-shadow: 0 0 10px rgba(0,255,120,0.4), inset 0 0 6px rgba(0,255,120,0.2);
+  background: rgba(0, 255, 120, 0.1);
+}
+
+.crypto-panel h4 .live-badge::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(0,255,120,1);
+  box-shadow: 0 0 8px rgba(0,255,120,0.9), 0 0 16px rgba(0,255,120,0.7);
+  animation: pulseGreen 1.5s infinite;
+}
+
+@keyframes pulseGreen {
+  0%   { transform: scale(1); opacity: 1; }
+  50%  { transform: scale(1.5); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* === Shared small panels (no glow) === */
+.panel-stack {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  width: 260px;
+}
+
+.panel {
+  background: #0d0d0d;
+  border: 1px solid #222;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.panel h5 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  letter-spacing: .5px;
+  color: #ddd;
+}
+
+.panel .row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.panel input[type="text"],
+.panel input[type="file"] {
+  width: 100%;
+  background: #111;
+  color: #fff;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  padding: 8px;
+  font-family: Consolas, monospace;
+  font-size: 13px;
+}
+
+.panel button {
+  background: #1a1a1a;
+  color: #fff;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.panel button:hover {
+  background: #222;
+}
+
+/* Left column placement: avatar/user box top-left, panel stack below */
+.top-left-wrap {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 260px;
+  z-index: 999;
+}
+
+.top-left-wrap .user-box {
+  position: static;
+  margin-bottom: 10px;
+}
+
+@keyframes hueSlideTyping {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 400% 50%; }
+}
+
+.typing-indicator {
+  margin: 8px 6px 0;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  /* animated rainbow clipped to text (no blink) */
+  background-image: linear-gradient(90deg,
+    #ff6ec7, #ffd166, #06d6a0, #118ab2, #9b5de5, #ff6ec7
+  );
+  background-size: 400% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: hueSlideTyping 6s linear infinite;
+  /* subtle glow that matches your vibe */
+  text-shadow: 0 0 0 rgba(0,0,0,0);
+  user-select: none;
+}
+
+/* --- AESTHETIC PERMA-CURSOR (no blink, smooth RGB) --- */
+
+/* Override the earlier blink with a non-disappearing RGB gradient */
+.cmd-cursor {
+  /* kill the old blink and replace it with our flow animation */
+  animation: caretFlow 6s linear infinite !important;
+
+  /* always visible */
+  opacity: 1 !important;
+
+  /* neon rainbow bar */
+  background-image: linear-gradient(90deg,
+    #ff6ec7, #ffd166, #06d6a0, #118ab2, #9b5de5, #ff6ec7
+  );
+  background-size: 300% 100%;
+
+  /* subtle glow + nicer shape */
+  border-radius: 2px;
+  box-shadow:
+    0 0 8px rgba(255,255,255,0.18),
+    0 0 18px rgba(0,255,160,0.12);
+
+  /* size — keep or tweak */
+  width: 10px !important;
+  height: 22px !important;
+  margin-left: 5px;
+}
+
+/* === PERMA-CURSOR: kill blink + add smooth RGB flow (global overrides) === */
+
+/* Hit every likely caret class (RainbowCaret, custom caret, etc.) */
+.cmd-cursor,
+.rainbow-caret,
+.rainbow-caret::after,
+.cmd-cursor::after,
+.cmd-cursor::before {
+  /* replace any prior blink animation */
+  animation: caretFlowX 6s linear infinite !important;
+
+  /* make sure it never hides */
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: inline-block !important;
+
+  /* neon gradient bar */
+  background-image: linear-gradient(90deg,
+    #ff6ec7, #ffd166, #06d6a0, #118ab2, #9b5de5, #ff6ec7
+  );
+  background-size: 300% 100%;
+  border-radius: 2px;
+  box-shadow:
+    0 0 8px rgba(255,255,255,0.18),
+    0 0 18px rgba(0,255,160,0.12);
+}
+
+/* size — keep or tweak */
+.cmd-cursor,
+.rainbow-caret {
+  width: 10px !important;
+  height: 22px !important;
+  margin-left: 5px;
+}
+
+/* If some other rule still toggles blink via keyframes named 'blink' */
+.cmd-cursor,
+.rainbow-caret {
+  animation-name: caretFlowX !important;
+}
+
+/* Show the left-top utility stack ONLY on Users tab */
+body:not([data-view="users"]) .top-left-wrap {
+  display: none !important;
+}
+
+/* Those two center panels ("Your Friends", "Pending Requests") are
+   direct children of .container — hide them on non-Users tabs */
+body:not([data-view="users"]) .container > .panel {
+  display: none !important;
+}
+
+/* Keep everything visible again on Users */
+body[data-view="users"] .top-left-wrap,
+body[data-view="users"] .container > .panel {
+  display: block !important;
+}
+
+/* But always show the NEW official stack */
+.top-left-wrap {
+  display: block !important;
+}
+
+/* ===== HARD LOGIN GATE ===== */
+
+/* Fullscreen overlay that appears BEFORE anything */
+#login-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(1200px 600px at 50% 40%, rgba(40,40,40,0.5), transparent 60%),
+    rgba(0,0,0,0.85);
+  backdrop-filter: blur(6px);
+}
+
+/* Make sure the login card itself is crisp and on top */
+#login-gate .login-form {
+  position: relative !important;
+  z-index: 3100 !important;
+  background: #000;
+  border: 1px solid #222;
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 0 40px rgba(0,0,0,0.6);
+}
+
+/* While logged OUT:
+   - hide/disable everything except the gate
+   - stop scroll so the page doesn't move behind the gate */
+body:not(.is-logged-in) {
+  overflow: hidden;
+}
+
+body:not(.is-logged-in) .container > :not(#login-gate):not(.reset-modal) {
+  pointer-events: none !important;
+  user-select: none !important;
+  opacity: 0 !important;
+}
+
+/* When logged IN: gate disappears automatically (React unmounts it) */
+body.is-logged-in #login-gate {
+  display: none !important;
+}
+
+.typing-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: linear-gradient(
+    90deg,
+    red,
+    orange,
+    yellow,
+    green,
+    blue,
+    indigo,
+    violet
+  );
+  background-size: 400% 400%;
+  animation: rainbowShift 5s linear infinite; /* keeps color moving */
+}
+
+@keyframes rainbowShift {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+/* 🔥 Global RGB Caret */
+* {
+  caret-color: transparent; /* hide default blinking caret everywhere */
+}
+
+.rgb-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  vertical-align: middle;
+  background: linear-gradient(
+    90deg,
+    red,
+    orange,
+    yellow,
+    green,
+    blue,
+    indigo,
+    violet
+  );
+  background-size: 400% 400%;
+  animation: rainbowShift 4s linear infinite;
+}
+
+@keyframes rainbowShift {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+/* index.css or global CSS */
+
+
+/* Rainbow cycling */
+
+.always-caret {
+  animation: none !important; /* stop blinking */
+}
+/* Kill the browser’s default caret everywhere */
+input, textarea, [contenteditable="true"] {
+  caret-color: transparent !important;
+}
+
+/* Smooth animated caret */
+input, textarea, [contenteditable="true"], .ql-editor {
+  caret-shape: block; /* some browsers support block caret */
+  transition: caret-color 0.35s ease-in-out;
+  caret-color: #ff004c; /* fallback */
+}
+
+/* optional: glowing effect around caret */
+input, textarea {
+  border-radius: 6px;
+}
+
+input:focus, textarea:focus {
+  box-shadow: 0 0 12px rgba(255, 0, 200, 0.5);
+  outline: none;
+}
+/* Caret styling */
+input, textarea, [contenteditable="true"], .ql-editor {
+  transition: caret-color 0.4s ease-in-out; /* smooth color changes */
+  caret-color: #ff004c; /* fallback */
+  font-smooth: always;
+}
+
+/* Optional: glowing inputs (you said keep this) */
+input:focus, textarea:focus {
+  box-shadow: 0 0 14px rgba(255, 0, 200, 0.4);
+  border-radius: 6px;
+  outline: none;
+}
+/* Smooth fading caret */
+.custom-caret {
+  display: inline-block;
+  width: 2px;              /* thin line */
+  height: 1em;             /* matches text height */
+  margin-left: 2px;        /* a little spacing from typed text */
+  background: linear-gradient(
+    180deg,
+    #fff,
+    #ffb3ff,
+    #d6b3ff
+  );                       /* aesthetic gradient */
+  border-radius: 3px;      /* soft rounded edges */
+  animation: fadeCaret 1.6s ease-in-out infinite;
+}
+
+.input-with-caret {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.input-with-caret input {
+  background: transparent;
+  border: 1px solid #444;
+  padding-right: 10px; /* space for caret */
+  caret-color: transparent; /* hide default caret */
+}
+
+.input-with-caret .custom-caret {
+  position: absolute;
+  right: 10px; /* sits at the end of text */
+}
+/* Hide the browser's default caret */
+input, textarea {
+  caret-color: transparent;
+}
+
+/* Custom caret that fades in/out smoothly */
+.custom-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.2em;
+  margin-left: 2px;
+  background: linear-gradient(180deg, #ff004c, #ff7a00, #ffe600, #00f5a0, #00b3ff, #7a00ff, #ff00ea);
+  border-radius: 50%; /* circular glow */
+  animation: fadeCaret 1.6s ease-in-out infinite;
+}
+
+
+/* Keep inputs aligned with the fake caret */
+.input-with-caret {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+.input-with-caret input {
+  flex: 1;
+  background: transparent;
+  border: 1px solid #333;
+  padding: 6px 10px;
+  color: #fff;
+}
+
+
+
+/* 🔮 Neon purple glow when typing in inputs/textarea */
+input:focus, textarea:focus {
+  outline: none;
+  border: 1px solid #d59aff;
+  box-shadow: 0 0 12px rgba(213, 154, 255, 0.7), 
+              0 0 24px rgba(213, 154, 255, 0.4);
+  transition: all 0.25s ease-in-out;
+}
+/* Hide default caret everywhere */
+input, textarea, [contenteditable="true"] {
+  caret-color: transparent !important;
+}
+
+/* Add spinner caret inside inputs */
+.input-with-spinner {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.input-with-spinner input,
+.input-with-spinner textarea {
+  padding-right: 16px; /* room for spinner */
+}
+
+/* Spinner caret positioned at end */
+.input-with-spinner .cmd-spinner {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+/* Global focus glow (for buttons, tabs, links) */
+button:focus, .tab:focus, a:focus {
+  outline: none;
+  border: 1px solid #d59aff;
+  box-shadow: 0 0 10px rgba(213, 154, 255, 0.7);
+  border-radius: 8px;
+}
+.login-tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+  gap: 10px;
+}
+
+.login-tabs button {
+  background: #111;
+  color: #fff;
+  border: 1px solid #333;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.login-tabs button.active {
+  border-color: #d59aff;
+  box-shadow: 0 0 10px rgba(213,154,255,0.6);
+}
+/* Wrap input in a container */
+.input-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.input-wrap input {
+  font-family: monospace; /* makes it look like CMD */
+  padding-right: 14px; /* space for fake caret */
+}
+
+/* Fake caret */
+
+
+input, textarea {
+  caret-color: transparent; /* hide native caret */
+}
+.input-wrap {
+  position: relative;
+  display: inline-block;
+}
+/* 🔥 Force global spinning / caret */
+input, textarea {
+  caret-color: transparent !important; /* hide native */
+  position: relative; /* anchor for pseudo element */
+}
+
+input:focus::after,
+textarea:focus::after {
+  content: "/";
+  position: absolute;
+  left: auto;
+  right: 6px; /* puts spinner at end of text */
+  top: 50%;
+  transform: translateY(-50%);
+  animation: cmd-spin 1s steps(4) infinite;
+  color: #fff;
+  pointer-events: none;
+}

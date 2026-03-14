@@ -1,0 +1,151 @@
+/* Core aesthetic styles from your existing code */
+.dex-container {
+    background: #000;
+    color: #fff;
+    padding: 4rem 1rem; /* Adjusted for better spacing */
+    min-height: 100vh;
+    text-align: center;
+    font-family: Consolas, monospace; /* Use a standard font */
+}
+
+.dex-title {
+    font-size: 2.6rem;
+    color: #d59aff;
+    text-shadow: 0 0 25px rgba(213, 154, 255, 0.7);
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 4px;
+    margin-bottom: 2.5rem;
+}
+
+.dex-input {
+    width: 90%;
+    padding: 0.8rem;
+    border-radius: 10px;
+    border: 1px solid rgba(213, 154, 255, 0.4);
+    background: rgba(15, 15, 25, 0.8);
+    color: #d8c3ff;
+    font-family: 'Orbitron', 'Consolas', monospace;
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: center;
+    letter-spacing: 1px;
+    outline: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(6px);
+    box-shadow:
+        inset 0 0 10px rgba(213, 154, 255, 0.2),
+        0 0 12px rgba(213, 154, 255, 0.15);
+}
+
+.dex-btn {
+    background: linear-gradient(90deg, #9b5de5, #d59aff, #9b5de5, #9b5de5);
+    background-size: 300% 100%;
+    animation: hueSlide 5s linear infinite;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 0.8rem 1.5rem;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 0 18px rgba(213, 154, 255, 0.35);
+    transition: all 0.3s ease-in-out;
+}
+
+.dex-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 35px rgba(213, 154, 255, 0.6);
+}
+
+@keyframes hueSlide {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 400% 50%; }
+}
+
+/* --- GLOWY LINKED BUTTONS STYLES --- */
+
+.dex-actions-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2rem;
+    position: relative;
+    gap: 0.5rem;
+}
+
+.dex-actions-group .action-btn {
+    position: relative;
+    z-index: 10;
+    min-width: 120px;
+    padding: 0.9rem 1.2rem;
+    font-size: 0.9em;
+}
+
+/* The Glowing Purple Link Line */
+.dex-actions-group::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, #d59aff, #ff6ec7, #d59aff, transparent);
+    background-size: 300% 100%;
+    border-radius: 2px;
+    filter: blur(2px);
+    animation: flowGlow 6s ease-in-out infinite;
+    transform: translateY(-50%);
+    z-index: 5;
+    pointer-events: none;
+}
+
+/* Animated Gradient for the Link Line */
+@keyframes flowGlow {
+    0% { background-position: 0% 50%; opacity: 0.7; }
+    50% { background-position: 100% 50%; opacity: 1; }
+    100% { background-position: 0% 50%; opacity: 0.7; }
+}
+
+/* Additional elements */
+.swap-input-group {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.input-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    color: #d8c3ff;
+    text-shadow: 0 0 10px rgba(213, 154, 255, 0.3);
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 1px;
+}
+
+.account-display {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    color: #a0f0ff;
+    text-shadow: 0 0 15px rgba(160, 240, 255, 0.5);
+    font-family: 'Consolas', monospace;
+}
+
+.dex-status {
+    margin-top: 1.5rem;
+    font-size: 1.1rem;
+    min-height: 24px;
+    color: #ff99e6;
+    text-shadow: 0 0 12px rgba(255, 153, 230, 0.6);
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 0.5px;
+}
+
+.dex-note {
+    margin-top: 2rem;
+    font-size: 0.85rem;
+    opacity: 0.6;
+    color: #c0c0e0;
+    text-shadow: none;
+}
