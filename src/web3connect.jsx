@@ -43,7 +43,7 @@ export default function Web3Connect({ setLoggedInUser }) {
       const signature = await signer.signMessage(message);
 
       // Save to backend
-      const response = await fetch("http://localhost:4000/api/login", {
+      const response = await fetch("https://aesthetic-hub-production.up.railway.app/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ address, signature })

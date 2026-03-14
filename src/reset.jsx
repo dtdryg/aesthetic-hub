@@ -6,7 +6,7 @@ export default function Reset() {
   const token = new URLSearchParams(window.location.search).get("token");
 
   const submit = async () => {
-    await axios.post("http://localhost:4000/resetPassword", { token, newPassword: newPass });
+    await axios.post("https://aesthetic-hub-production.up.railway.app/resetPassword", { token, newPassword: newPass });
     alert("Password updated. You can log in now.");
     window.location.href = "/";
   };

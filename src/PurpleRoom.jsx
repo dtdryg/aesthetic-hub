@@ -5,7 +5,7 @@ import "./PurpleRoom.css";
 import socket from './socket';
 import { useAccount } from 'wagmi';
 
-const API = "http://localhost:4000";
+const API = "https://aesthetic-hub-production.up.railway.app";
 
 // ❌ This JSX must be inside a component
 // {/* Example: open DM with selected friend */}

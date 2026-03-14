@@ -7,7 +7,7 @@ function PostChain() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const res = await fetch("http://localhost:4000/add_block", {
+    const res = await fetch("https://aesthetic-hub-production.up.railway.app/add_block", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

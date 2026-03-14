@@ -2,7 +2,7 @@
 import { io } from "socket.io-client";
 
 // Use WS transport to avoid long-poll fallbacks
-const socket = io("http://localhost:4000", {
+const socket = io("https://aesthetic-hub-production.up.railway.app", {
   transports: ["websocket"],
   withCredentials: true,
   autoConnect: false, // we connect after login

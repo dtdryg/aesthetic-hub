@@ -177,7 +177,7 @@ function App() {
     setUploading(true);
     try {
       const data = await uploadFile(file);
-      const url = data.web3Url || (`http://localhost:4000${data.web2Url}`);
+      const url = data.web3Url || (`https://aesthetic-hub-production.up.railway.app${data.web2Url}`);
       setUploadUrl(url);
     } catch (err) {
       console.error(err);
@@ -247,7 +247,7 @@ function App() {
     const signer = await provider.getSigner();
     const address = await signer.getAddress();
 
-    const { data: nonceData } = await axios.get('http://localhost:4000/auth/reset/nonce', {
+    const { data: nonceData } = await axios.get('https://aesthetic-hub-production.up.railway.app/auth/reset/nonce', {
       params: { address }
     });
 
@@ -265,7 +265,7 @@ function App() {
 
     const signature = await signer.signMessage(message);
 
-    const { data: verifyData } = await axios.post('http://localhost:4000/auth/reset/verify', {
+    const { data: verifyData } = await axios.post('https://aesthetic-hub-production.up.railway.app/auth/reset/verify', {
       message,
       signature
     });
@@ -277,7 +277,7 @@ function App() {
   const requestEmailReset = async () => {
     if (!resetEmail) return alert("Enter your email first");
     try {
-      await axios.post("http://localhost:4000/requestPasswordReset", { email: resetEmail });
+      await axios.post("https://aesthetic-hub-production.up.railway.app/requestPasswordReset", { email: resetEmail });
       alert("If the email exists, a reset link has been sent.");
     } catch (err) {
       alert(err.response?.data?.message || "Reset request failed");
@@ -287,7 +287,7 @@ function App() {
   const confirmReset = async () => {
     if (!resetToken || !newPassword) return alert("Token and new password required");
     try {
-      await axios.post("http://localhost:4000/confirmPasswordReset", {
+      await axios.post("https://aesthetic-hub-production.up.railway.app/confirmPasswordReset", {
         token: resetToken,
         newPassword
       });
@@ -315,7 +315,7 @@ function App() {
     socket.emit('private_message', { to: chatUser, text: newMessage });
 
     try {
-      await axios.post('http://localhost:4000/sendMessage', {
+      await axios.post('https://aesthetic-hub-production.up.railway.app/sendMessage', {
         from: loggedInUser,
         to: chatUser,
         text: newMessage,
@@ -500,17 +500,17 @@ function App() {
   }, [loggedInUser]);
 
   const fetchPosts = async () => {
-    const res = await axios.get('http://localhost:4000/posts');
+    const res = await axios.get('https://aesthetic-hub-production.up.railway.app/posts');
     setPosts(res.data.sort((a, b) => b.timestamp - a.timestamp));
   };
 
   const fetchUsers = async () => {
-    const res = await axios.get('http://localhost:4000/users');
+    const res = await axios.get('https://aesthetic-hub-production.up.railway.app/users');
     setUsers(res.data);
   };
 
   const fetchNotifications = async () => {
-    const res = await axios.get('http://localhost:4000/notifications', {
+    const res = await axios.get('https://aesthetic-hub-production.up.railway.app/notifications', {
       params: { username: loggedInUser },
     });
     setNotifications(res.data);
@@ -518,7 +518,7 @@ function App() {
 
   const handleRemoveAvatar = async () => {
     try {
-      await axios.post('http://localhost:4000/removeAvatar', { username: loggedInUser });
+      await axios.post('https://aesthetic-hub-production.up.railway.app/removeAvatar', { username: loggedInUser });
       fetchUsers();
       alert("Avatar removed.");
     } catch (err) {
@@ -573,7 +573,7 @@ function App() {
 
   const handleWeb2Register = async () => {
   try {
-    await axios.post("http://localhost:4000/web2register", {
+    await axios.post("https://aesthetic-hub-production.up.railway.app/web2register", {
       username,
       email,
       password
@@ -587,7 +587,7 @@ function App() {
 
 const handleWeb2Login = async () => {
   try {
-    const res = await axios.post("http://localhost:4000/web2login", {
+    const res = await axios.post("https://aesthetic-hub-production.up.railway.app/web2login", {
       identifier: username, // can be username OR email
       password
     });
@@ -603,7 +603,7 @@ const handleWeb2Login = async () => {
 
   const handleEmailRegister = async () => {
     try {
-      await axios.post("http://localhost:4000/registerEmail", { email, password: emailPassword });
+      await axios.post("https://aesthetic-hub-production.up.railway.app/registerEmail", { email, password: emailPassword });
       alert("Registered. Please log in now.");
     } catch (err) {
       alert(err.response?.data?.message || "Email registration failed");
@@ -612,7 +612,7 @@ const handleWeb2Login = async () => {
 
   const handleEmailLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:4000/loginEmail", { email, password: emailPassword });
+      const res = await axios.post("https://aesthetic-hub-production.up.railway.app/loginEmail", { email, password: emailPassword });
       setLoggedInUser(res.data.username);
       setView("feed");
       socket.emit('presence:join', res.data.username);
@@ -634,7 +634,7 @@ const handleWeb2Login = async () => {
       const address = await signer.getAddress();
 
       // GET NONCE
-      const nonceRes = await axios.get('http://localhost:4000/siwe/nonce');
+      const nonceRes = await axios.get('https://aesthetic-hub-production.up.railway.app/siwe/nonce');
       const nonce = nonceRes.data.nonce;
 
       // use the actual connected chain id (don't hardcode 1)
@@ -655,7 +655,7 @@ const handleWeb2Login = async () => {
 
       const signature = await signer.signMessage(message);
 
-      const verifyRes = await axios.post('http://localhost:4000/siwe/verify', {
+      const verifyRes = await axios.post('https://aesthetic-hub-production.up.railway.app/siwe/verify', {
         message,
         signature
       });
@@ -703,13 +703,13 @@ const handleWeb2Login = async () => {
     const fd = new FormData();
     fd.append('video', videoFile);
     fd.append('username', loggedInUser);
-    await axios.post('http://localhost:4000/upload', fd);
+    await axios.post('https://aesthetic-hub-production.up.railway.app/upload', fd);
     setVideoFile(null);
     fetchPosts();
   };
 
   const handleAddComment = async (video) => {
-    await axios.post('http://localhost:4000/comment', {
+    await axios.post('https://aesthetic-hub-production.up.railway.app/comment', {
       username: loggedInUser,
       video,
       text: commentText,
@@ -719,7 +719,7 @@ const handleWeb2Login = async () => {
   };
 
   const handleDeleteComment = async (video, timestamp) => {
-    await axios.post('http://localhost:4000/deleteComment', {
+    await axios.post('https://aesthetic-hub-production.up.railway.app/deleteComment', {
       username: loggedInUser,
       video,
       timestamp,
@@ -729,7 +729,7 @@ const handleWeb2Login = async () => {
 
   const handleSendFriendRequest = async () => {
     if (!friendRequestTo.trim()) return;
-    await axios.post('http://localhost:4000/sendFriendRequest', {
+    await axios.post('https://aesthetic-hub-production.up.railway.app/sendFriendRequest', {
       from: loggedInUser,
       to: friendRequestTo.trim(),
     });
@@ -739,7 +739,7 @@ const handleWeb2Login = async () => {
 
   const handleDeleteUser = async () => {
     if (!deleteUserTarget) return;
-    await axios.post('http://localhost:4000/deleteUser', {
+    await axios.post('https://aesthetic-hub-production.up.railway.app/deleteUser', {
       admin: loggedInUser,
       target: deleteUserTarget,
     });
@@ -749,7 +749,7 @@ const handleWeb2Login = async () => {
   };
 
   const loadMessages = async () => {
-    const res = await axios.get('http://localhost:4000/messages', {
+    const res = await axios.get('https://aesthetic-hub-production.up.railway.app/messages', {
       params: { user1: loggedInUser, user2: chatUser },
     });
     setMessages(res.data);
@@ -1082,7 +1082,7 @@ const resetModal = showReset && (
                 <div key={idx} className="post">
                   <p><strong>{post.username}</strong></p>
                   <video controls className="video-player">
-                    <source src={`http://localhost:4000${post.video}`} type="video/mp4" />
+                    <source src={`https://aesthetic-hub-production.up.railway.app${post.video}`} type="video/mp4" />
                   </video>
                   {post.comments.map((c, i) => (
                     <div key={i}>
@@ -1133,7 +1133,7 @@ const resetModal = showReset && (
     const email = prompt("Enter your registered email:");
     if (!email) return;
 
-    const res = await fetch("http://localhost:4000/requestPasswordReset", {
+    const res = await fetch("https://aesthetic-hub-production.up.railway.app/requestPasswordReset", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),

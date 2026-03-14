@@ -23,7 +23,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './UserProfile.css';
 
-const API = 'http://localhost:4000';
+const API = 'https://aesthetic-hub-production.up.railway.app';
 
 // ── Verified Badge ────────────────────────────────────────────
 export function VerifiedBadge({ size = 16 }) {

@@ -13,7 +13,7 @@ export async function uploadFile(file, username, onProgress) {
   fd.append("file", file);
   if (username) fd.append("username", username);
 
-  const res = await axios.post("http://localhost:4000/api/upload", fd, {
+  const res = await axios.post("https://aesthetic-hub-production.up.railway.app/api/upload", fd, {
     headers: { "Content-Type": "multipart/form-data" },
     onUploadProgress: e => {
       if (onProgress && e.total) onProgress(Math.round((e.loaded / e.total) * 100));

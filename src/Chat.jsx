@@ -78,7 +78,7 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
 
   const loadMessages = async () => {
     try {
-      const res = await axios.get('http://localhost:4000/messages', {
+      const res = await axios.get('https://aesthetic-hub-production.up.railway.app/messages', {
         params: { user1: loggedInUser, user2: chatUser },
       });
       setMessages(res.data);
@@ -123,7 +123,7 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
     } else {
       socket.emit('private_message', { to: chatUser, text });
       try {
-        await axios.post('http://localhost:4000/sendMessage', {
+        await axios.post('https://aesthetic-hub-production.up.railway.app/sendMessage', {
           from: loggedInUser, to: chatUser, text,
         });
       } catch (e) { console.error(e); }
