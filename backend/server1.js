@@ -615,7 +615,28 @@ io.on("connection", (socket) => {
     }
   });
 });
-
+// TURN credentials endpoint
+app.get("/turn-credentials", async (req, res) => {
+  try {
+    const response = await fetch(
+      "https://mla2.metered.live/api/v1/turn/credential?secretKey=e7683ba4dfd4aaba39d9c81f02adabcf2ee0e172a0ac193e",
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ expiryInSeconds: 14400 })
+      }
+    );
+    const data = await response.json();
+    const iceResponse = await fetch(
+      `https://mla2.metered.live/api/v1/turn/credentials?apiKey=${data.apiKey}`
+    );
+    const iceServers = await iceResponse.json();
+    res.json(iceServers);
+  } catch (err) {
+    console.error('TURN error:', err);
+    res.status(500).json([]);
+  }
+});
 // ------------------- START -------------------
 server.listen(PORT, () => {
   console.log(`🔥 API + Socket.IO running on http://localhost:${PORT}`);

@@ -1,72 +1,54 @@
-/**
- * Chat.jsx — Aesthetic Hub
- * Full rebuild: text DMs, group chat, WebRTC voice + video.
- * Zero paywalls. Zero subscriptions. Peer-to-peer via WebRTC + Socket.io signaling.
- *
- * Drop-in usage in App.jsx:
- *   import Chat from './Chat';
- *   {view === 'chat' && <Chat loggedInUser={loggedInUser} users={users} onlineUsers={onlineUsers} resolveAvatarUrl={resolveAvatarUrl} />}
- *
- * Socket.io events this component emits/listens to (add to your server.js):
- *   typing:start / typing:stop
- *   private_message
- *   chatMessage  (group)
- *   webrtc:offer / webrtc:answer / webrtc:ice / webrtc:call-end
- */
-
-import React, {
-  useState, useEffect, useRef, useCallback
-} from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import socket from './socket';
 import './Chat.css';
 
-/* ─── ICE config — uses free public STUN + optional TURN ──────────────── */
-const ICE_SERVERS = {
-  iceServers: [
-    { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' },
-    // If you get a free Metered.ca TURN key, add it here:
-    // { urls: 'turn:relay.metered.ca:80', username: 'YOUR_USER', credential: 'YOUR_KEY' }
-  ],
-};
+const API = 'https://aesthetic-hub-production.up.railway.app';
 
-/* ─── tiny helpers ─────────────────────────────────────────────────────── */
+
+
 const ts = (t) =>
   new Date(t || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
 export default function Chat({ loggedInUser, users = [], onlineUsers = [], resolveAvatarUrl }) {
-  /* ── sidebar / room selection ── */
   const [chatUser, setChatUser] = useState('group');
-
-  /* ── messages ── */
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef(null);
-
-  /* ── typing ── */
   const [isTyping, setIsTyping] = useState(false);
   const typingTimer = useRef(null);
 
-  /* ── call state ── */
-  const [callState, setCallState] = useState('idle'); // idle | calling | ringing | in-call
-  const [callMode, setCallMode] = useState('video');  // video | voice
+  // call state
+  const [callState, setCallState] = useState('idle');
+  const [callMode, setCallMode] = useState('video');
   const [callPeer, setCallPeer] = useState(null);
   const [localStream, setLocalStream] = useState(null);
   const [muted, setMuted] = useState(false);
   const [camOff, setCamOff] = useState(false);
   const [screenSharing, setScreenSharing] = useState(false);
 
-  /* ── WebRTC refs ── */
+  // refs — never stale
   const peerRef = useRef(null);
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const localStreamRef = useRef(null);
   const screenTrackRef = useRef(null);
+  const callPeerRef = useRef(null); // FIX: ref so createPeer always has latest peer
+  const pendingOfferRef = useRef(null); // FIX: store offer in ref not socket
+const [iceServers, setIceServers] = useState([
+  { urls: 'stun:stun.l.google.com:19302' },
+]);
 
-  /* ══════════════════════════════════════════════════════════════════════
-     MESSAGES
-  ══════════════════════════════════════════════════════════════════════ */
+useEffect(() => {
+  fetch(`${API}/turn-credentials`)
+    .then(r => r.json())
+    .then(servers => setIceServers(servers))
+    .catch(console.error);
+}, []);
+  // keep callPeerRef in sync
+  useEffect(() => { callPeerRef.current = callPeer; }, [callPeer]);
+
+  /* ── MESSAGES ── */
   useEffect(() => {
     if (chatUser && chatUser !== 'group') loadMessages();
     else setMessages([]);
@@ -78,14 +60,13 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
 
   const loadMessages = async () => {
     try {
-      const res = await axios.get('https://aesthetic-hub-production.up.railway.app/messages', {
+      const res = await axios.get(`${API}/messages`, {
         params: { user1: loggedInUser, user2: chatUser },
       });
       setMessages(res.data);
     } catch (e) { console.error(e); }
   };
 
-  /* incoming private messages */
   useEffect(() => {
     const onPrivate = (msg) => {
       if (
@@ -106,7 +87,6 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
     };
   }, [chatUser, loggedInUser]);
 
-  /* typing indicators */
   useEffect(() => {
     const show = ({ from }) => { if (from === chatUser) setIsTyping(true); };
     const hide = ({ from }) => { if (from === chatUser) setIsTyping(false); };
@@ -115,21 +95,23 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
     return () => { socket.off('typing:show', show); socket.off('typing:hide', hide); };
   }, [chatUser]);
 
+  // FIX: add message to local state immediately so it shows without re-fetch
   const handleSend = async () => {
     const text = newMessage.trim();
     if (!text) return;
+    setNewMessage('');
+    socket.emit('typing:stop', { to: chatUser });
+
     if (chatUser === 'group') {
       socket.emit('chatMessage', text);
     } else {
+      const msg = { from: loggedInUser, to: chatUser, text, timestamp: Date.now() };
+      setMessages(prev => [...prev, msg]); // show instantly
       socket.emit('private_message', { to: chatUser, text });
       try {
-        await axios.post('https://aesthetic-hub-production.up.railway.app/sendMessage', {
-          from: loggedInUser, to: chatUser, text,
-        });
+        await axios.post(`${API}/sendMessage`, { from: loggedInUser, to: chatUser, text });
       } catch (e) { console.error(e); }
     }
-    setNewMessage('');
-    socket.emit('typing:stop', { to: chatUser });
   };
 
   const handleKey = (e) => {
@@ -145,11 +127,11 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
     }
   };
 
-  /* ══════════════════════════════════════════════════════════════════════
-     WebRTC — SIGNALING via socket.io
-  ══════════════════════════════════════════════════════════════════════ */
-  const createPeer = useCallback((initiator, stream) => {
-    const pc = new RTCPeerConnection(ICE_SERVERS);
+  /* ── WebRTC ── */
+
+  // FIX: take targetPeer as arg instead of reading from state (which may be stale)
+  const createPeer = useCallback((stream, targetPeer) => {
+    const pc = new RTCPeerConnection({ iceServers });
 
     stream.getTracks().forEach(t => pc.addTrack(t, stream));
 
@@ -161,7 +143,8 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
 
     pc.onicecandidate = (e) => {
       if (e.candidate) {
-        socket.emit('webrtc:ice', { to: callPeer || chatUser, candidate: e.candidate });
+        const peer = targetPeer || callPeerRef.current;
+        socket.emit('webrtc:ice', { to: peer, candidate: e.candidate });
       }
     };
 
@@ -173,13 +156,14 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
 
     peerRef.current = pc;
     return pc;
-  }, [callPeer, chatUser]);
+  }, []);
 
-  /* Initiate a call */
   const startCall = async (mode) => {
-    if (chatUser === 'group') return; // group calls TODO
+    if (chatUser === 'group') return;
+    const target = chatUser;
     setCallMode(mode);
-    setCallPeer(chatUser);
+    setCallPeer(target);
+    callPeerRef.current = target;
     setCallState('calling');
 
     try {
@@ -191,17 +175,12 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
       setLocalStream(stream);
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
 
-      const pc = createPeer(true, stream);
+      const pc = createPeer(stream, target); // FIX: pass target directly
 
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
-      socket.emit('webrtc:offer', {
-        to: chatUser,
-        offer,
-        mode,
-        from: loggedInUser,
-      });
+      socket.emit('webrtc:offer', { to: target, offer, mode, from: loggedInUser });
     } catch (err) {
       console.error('getUserMedia error', err);
       alert('Could not access camera/mic. Check permissions.');
@@ -209,10 +188,12 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
     }
   };
 
-  /* Answer incoming call */
+  // FIX: answerCall now properly creates peer before setting remote description
   const answerCall = async (offerData) => {
+    const from = offerData.from;
     setCallMode(offerData.mode);
-    setCallPeer(offerData.from);
+    setCallPeer(from);
+    callPeerRef.current = from;
     setCallState('in-call');
 
     try {
@@ -224,13 +205,14 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
       setLocalStream(stream);
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
 
-      const pc = createPeer(false, stream);
-      await pc.setRemoteDescription(new RTCSessionDescription(offerData.offer));
+      const pc = createPeer(stream, from); // FIX: pass from directly
 
+      // FIX: set remote description AFTER peer is created
+      await pc.setRemoteDescription(new RTCSessionDescription(offerData.offer));
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
 
-      socket.emit('webrtc:answer', { to: offerData.from, answer });
+      socket.emit('webrtc:answer', { to: from, answer });
     } catch (err) {
       console.error('answer error', err);
       setCallState('idle');
@@ -241,9 +223,9 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
     socket.emit('webrtc:call-end', { to: from });
     setCallState('idle');
     setCallPeer(null);
+    callPeerRef.current = null;
   };
 
-  /* End call */
   const endCall = useCallback(() => {
     if (peerRef.current) { peerRef.current.close(); peerRef.current = null; }
     if (localStreamRef.current) {
@@ -252,22 +234,23 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
     }
     if (localVideoRef.current) localVideoRef.current.srcObject = null;
     if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
-    if (callPeer) socket.emit('webrtc:call-end', { to: callPeer });
+    const peer = callPeerRef.current;
+    if (peer) socket.emit('webrtc:call-end', { to: peer });
     setCallState('idle');
     setCallPeer(null);
+    callPeerRef.current = null;
     setLocalStream(null);
     setMuted(false);
     setCamOff(false);
     setScreenSharing(false);
-  }, [callPeer]);
+  }, []);
 
-  /* Socket signaling listeners */
   useEffect(() => {
     const onOffer = (data) => {
+      pendingOfferRef.current = data; // FIX: store in ref not socket
       setCallPeer(data.from);
+      callPeerRef.current = data.from;
       setCallState('ringing');
-      /* store offer for when user clicks answer */
-      socket._pendingOffer = data;
     };
 
     const onAnswer = async ({ answer }) => {
@@ -293,6 +276,7 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
       }
       setCallState('idle');
       setCallPeer(null);
+      callPeerRef.current = null;
       setLocalStream(null);
     };
 
@@ -309,7 +293,6 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
     };
   }, []);
 
-  /* Controls */
   const toggleMute = () => {
     if (!localStreamRef.current) return;
     localStreamRef.current.getAudioTracks().forEach(t => { t.enabled = muted; });
@@ -331,7 +314,7 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
         screenTrackRef.current = screenTrack;
         const sender = peerRef.current.getSenders().find(s => s.track?.kind === 'video');
         if (sender) sender.replaceTrack(screenTrack);
-        screenTrack.onended = () => { toggleScreen(); };
+        screenTrack.onended = () => toggleScreen();
         setScreenSharing(true);
       } catch (e) { console.error(e); }
     } else {
@@ -344,23 +327,17 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
     }
   };
 
-  /* ══════════════════════════════════════════════════════════════════════
-     RENDER
-  ══════════════════════════════════════════════════════════════════════ */
   const otherUsers = users.filter(u => u.username !== loggedInUser);
   const activePeerData = users.find(u => u.username === chatUser);
 
   return (
     <div className="ch-root">
-
-      {/* ── SIDEBAR ─────────────────────────────────────────────── */}
       <aside className="ch-sidebar">
         <div className="ch-sidebar-header">
           <span className="ch-sidebar-title">Messages</span>
           <span className="ch-online-count">{onlineUsers.length} online</span>
         </div>
 
-        {/* Group chat tile */}
         <div
           className={`ch-tile ${chatUser === 'group' ? 'active' : ''}`}
           onClick={() => setChatUser('group')}
@@ -406,29 +383,23 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
         )}
       </aside>
 
-      {/* ── MAIN AREA ───────────────────────────────────────────── */}
       <main className="ch-main">
-
-        {/* ── CALL OVERLAY: RINGING ── */}
+        {/* RINGING */}
         {callState === 'ringing' && (
           <div className="ch-call-overlay">
             <div className="ch-call-modal">
               <div className="ch-call-ring-anim" />
-              <p className="ch-call-who">📞 Incoming {socket._pendingOffer?.mode} call</p>
+              <p className="ch-call-who">Incoming {pendingOfferRef.current?.mode} call</p>
               <p className="ch-call-from">{callPeer}</p>
               <div className="ch-call-actions">
-                <button className="ch-btn-answer" onClick={() => answerCall(socket._pendingOffer)}>
-                  Answer
-                </button>
-                <button className="ch-btn-decline" onClick={() => declineCall(callPeer)}>
-                  Decline
-                </button>
+                <button className="ch-btn-answer" onClick={() => answerCall(pendingOfferRef.current)}>Answer</button>
+                <button className="ch-btn-decline" onClick={() => declineCall(callPeer)}>Decline</button>
               </div>
             </div>
           </div>
         )}
 
-        {/* ── CALL OVERLAY: CALLING ── */}
+        {/* CALLING */}
         {callState === 'calling' && (
           <div className="ch-call-overlay">
             <div className="ch-call-modal">
@@ -439,7 +410,7 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
           </div>
         )}
 
-        {/* ── ACTIVE CALL UI ── */}
+        {/* IN CALL */}
         {callState === 'in-call' && (
           <div className="ch-call-active">
             <div className="ch-video-grid">
@@ -454,9 +425,7 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
                   <video ref={remoteVideoRef} autoPlay playsInline style={{ display: 'none' }} />
                   <video ref={localVideoRef} autoPlay playsInline muted style={{ display: 'none' }} />
                   <div className="ch-voice-ui">
-                    <div className="ch-voice-avatar">
-                      {callPeer?.[0]?.toUpperCase()}
-                    </div>
+                    <div className="ch-voice-avatar">{callPeer?.[0]?.toUpperCase()}</div>
                     <p className="ch-voice-name">{callPeer}</p>
                     <p className="ch-voice-status">Voice call in progress…</p>
                     <div className="ch-voice-wave">
@@ -468,41 +437,26 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
                 </>
               )}
             </div>
-
             <div className="ch-call-controls">
-              <button
-                className={`ch-ctrl-btn ${muted ? 'active-red' : ''}`}
-                onClick={toggleMute}
-                title={muted ? 'Unmute' : 'Mute'}
-              >
+              <button className={`ch-ctrl-btn ${muted ? 'active-red' : ''}`} onClick={toggleMute}>
                 {muted ? '🔇' : '🎤'}
               </button>
               {callMode === 'video' && (
                 <>
-                  <button
-                    className={`ch-ctrl-btn ${camOff ? 'active-red' : ''}`}
-                    onClick={toggleCam}
-                    title={camOff ? 'Enable Camera' : 'Disable Camera'}
-                  >
+                  <button className={`ch-ctrl-btn ${camOff ? 'active-red' : ''}`} onClick={toggleCam}>
                     {camOff ? '📷' : '📹'}
                   </button>
-                  <button
-                    className={`ch-ctrl-btn ${screenSharing ? 'active-purple' : ''}`}
-                    onClick={toggleScreen}
-                    title="Share Screen"
-                  >
+                  <button className={`ch-ctrl-btn ${screenSharing ? 'active-purple' : ''}`} onClick={toggleScreen}>
                     🖥
                   </button>
                 </>
               )}
-              <button className="ch-ctrl-btn ch-ctrl-end" onClick={endCall} title="End Call">
-                📵
-              </button>
+              <button className="ch-ctrl-btn ch-ctrl-end" onClick={endCall}>📵</button>
             </div>
           </div>
         )}
 
-        {/* ── CHAT HEADER ── */}
+        {/* HEADER */}
         <div className="ch-header">
           {chatUser === 'group' ? (
             <div className="ch-header-info">
@@ -512,49 +466,31 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
           ) : (
             <div className="ch-header-info">
               {activePeerData?.avatar && (
-                <img
-                  src={resolveAvatarUrl(activePeerData.avatar)}
-                  alt={chatUser}
-                  className="ch-header-avatar"
-                />
+                <img src={resolveAvatarUrl(activePeerData.avatar)} alt={chatUser} className="ch-header-avatar" />
               )}
               <div>
                 <span className="ch-header-name">{chatUser}</span>
-                <span className="ch-header-sub">
-                  {onlineUsers.includes(chatUser) ? '● Online' : '● Offline'}
-                </span>
+                <span className="ch-header-sub">{onlineUsers.includes(chatUser) ? '● Online' : '● Offline'}</span>
               </div>
             </div>
           )}
-
-          {/* call buttons — only in DMs */}
           {chatUser !== 'group' && callState === 'idle' && (
             <div className="ch-header-actions">
-              <button
-                className="ch-call-btn ch-call-btn--voice"
-                onClick={() => startCall('voice')}
-                title="Voice Call"
-              >
+              <button className="ch-call-btn ch-call-btn--voice" onClick={() => startCall('voice')}>
                 <span>📞</span> Voice
               </button>
-              <button
-                className="ch-call-btn ch-call-btn--video"
-                onClick={() => startCall('video')}
-                title="Video Call"
-              >
+              <button className="ch-call-btn ch-call-btn--video" onClick={() => startCall('video')}>
                 <span>📹</span> Video
               </button>
             </div>
           )}
         </div>
 
-        {/* ── MESSAGES ── */}
+        {/* MESSAGES */}
         <div className="ch-messages">
           {messages.length === 0 && (
             <div className="ch-messages-empty">
-              {chatUser === 'group'
-                ? 'Send a message to the group.'
-                : `Start a conversation with ${chatUser}.`}
+              {chatUser === 'group' ? 'Send a message to the group.' : `Start a conversation with ${chatUser}.`}
             </div>
           )}
           {messages.map((m, i) => {
@@ -562,30 +498,20 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
             const sender = m.from || m.username || '?';
             return (
               <div key={i} className={`ch-bubble-row ${isMe ? 'me' : 'them'}`}>
-                {!isMe && (
-                  <div className="ch-bubble-avatar">
-                    {sender[0]?.toUpperCase()}
-                  </div>
-                )}
+                {!isMe && <div className="ch-bubble-avatar">{sender[0]?.toUpperCase()}</div>}
                 <div className="ch-bubble-wrap">
                   {!isMe && <span className="ch-bubble-sender">{sender}</span>}
-                  <div className={`ch-bubble ${isMe ? 'ch-bubble--me' : 'ch-bubble--them'}`}>
-                    {m.text}
-                  </div>
+                  <div className={`ch-bubble ${isMe ? 'ch-bubble--me' : 'ch-bubble--them'}`}>{m.text}</div>
                   <span className="ch-bubble-ts">{ts(m.timestamp)}</span>
                 </div>
               </div>
             );
           })}
-          {isTyping && (
-            <div className="ch-typing">
-              <span /><span /><span />
-            </div>
-          )}
+          {isTyping && <div className="ch-typing"><span /><span /><span /></div>}
           <div ref={messagesEndRef} />
         </div>
 
-        {/* ── COMPOSER ── */}
+        {/* COMPOSER */}
         <div className="ch-composer">
           <textarea
             className="ch-composer-input"
@@ -604,7 +530,6 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
             ↑
           </button>
         </div>
-
       </main>
     </div>
   );
