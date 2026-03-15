@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
-import Reset from "./reset";
+
 import "@rainbow-me/rainbowkit/styles.css";
 import { RainbowKitProvider, getDefaultConfig } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
@@ -30,4 +30,3 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     </WagmiProvider>
   </React.StrictMode>
 );
-<Route path="/reset" element={<Reset />} />
