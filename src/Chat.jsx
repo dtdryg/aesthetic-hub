@@ -261,6 +261,10 @@ useEffect(() => {
 
   const endCall = useCallback(() => {
     if (peerRef.current) { peerRef.current.close(); peerRef.current = null; }
+    socket.off('webrtc:offer');
+    socket.off('webrtc:answer');
+    socket.off('webrtc:ice');
+    socket.off('webrtc:call-end');
     if (localStreamRef.current) {
       localStreamRef.current.getTracks().forEach(t => t.stop());
       localStreamRef.current = null;
@@ -324,7 +328,7 @@ useEffect(() => {
       socket.off('webrtc:ice', onIce);
       socket.off('webrtc:call-end', onCallEnd);
     };
-  }, []);
+  }, [chatUser, loggedInUser]);
 
   const toggleMute = () => {
     if (!localStreamRef.current) return;
