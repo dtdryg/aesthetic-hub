@@ -122,7 +122,7 @@ function App() {
   const [selectedPeer, setSelectedPeer] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [loggedInUser, setLoggedInUser] = useState(null);
+  const [loggedInUser, setLoggedInUser] = useState(() => localStorage.getItem('loggedInUser') || null);
   const [videoFile, setVideoFile] = useState(null);
   const [avatarFile, setAvatarFile] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -592,6 +592,8 @@ const handleWeb2Login = async () => {
       password
     });
     setLoggedInUser(res.data.username);
+localStorage.setItem('loggedInUser', res.data.username);
+
     setView("feed");
     socket.emit("presence:join", res.data.username);
     alert("Logged in via Web2.");
@@ -613,7 +615,9 @@ const handleWeb2Login = async () => {
   const handleEmailLogin = async () => {
     try {
       const res = await axios.post("https://aesthetic-hub-production.up.railway.app/loginEmail", { email, password: emailPassword });
-      setLoggedInUser(res.data.username);
+setLoggedInUser(res.data.username);
+localStorage.setItem('loggedInUser', res.data.username);
+localStorage.setItem('loggedInUser', res.data.username);
       setView("feed");
       socket.emit('presence:join', res.data.username);
       alert("Logged in via Email.");
@@ -661,6 +665,7 @@ const handleWeb2Login = async () => {
       });
       const ethAddr = verifyRes.data.address;
       setLoggedInUser(ethAddr);
+localStorage.setItem('loggedInUser', ethAddr);
       setView("feed");
 
       try { socket.emit('presence:join', ethAddr); } catch {}
@@ -928,12 +933,6 @@ const resetModal = showReset && (
       )}
       {/* ✅ Reset modal shows up even if not logged in */}
       {resetModal}
-<UserProfile
-  loggedInUser={loggedInUser}
-  isOwner={loggedInUser === 'kareem'}
-  onLogout={() => setLoggedInUser(null)}
-  onUsersUpdate={fetchUsers}
-/>
 
       
 <div className="logo-area">
@@ -1106,7 +1105,10 @@ const resetModal = showReset && (
           <UserProfile
   loggedInUser={loggedInUser}
   isOwner={loggedInUser === 'kareem'}
-  onLogout={() => setLoggedInUser(null)}
+  onLogout={() => {
+    setLoggedInUser(null);
+    localStorage.removeItem('loggedInUser');
+  }}
   onUsersUpdate={fetchUsers}
 />
 
