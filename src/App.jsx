@@ -104,7 +104,7 @@ function App() {
   const [emailPassword, setEmailPassword] = useState('');
   // controls which login type is active
   const [loginMode, setLoginMode] = useState("web3"); // "web3" | "email" | "username"
-  const [view, setView] = useState('feed');
+  const [view, setView] = useState('chat');
   const [showCaret, setShowCaret] = useState(false);
   const caretFrame = useSpinnerCaret();
   const [showReset, setShowReset] = useState(false);
@@ -420,7 +420,7 @@ function App() {
         fetchCryptoData();
       }
     };
-{view === 'profile' && (
+{view === 'profile' && profileUsername && (
   <ProfilePage
     username={profileUsername}
     loggedInUser={loggedInUser}
