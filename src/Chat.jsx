@@ -527,22 +527,28 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
           {/* LEFT — profile panel */}
           {chatUser !== 'group' && activePeerData && (
             <div className="ch-profile-panel">
-              {/* banner */}
-              <div className="ch-profile-banner"
-                style={{ background: `linear-gradient(135deg, ${activePeerData.color1 || '#1a0a2f'}, ${activePeerData.color2 || '#050510'})` }}
+              {/* tall vertical side banner */}
+              <div className="ch-profile-side-banner"
+                style={{ background: `linear-gradient(180deg, ${activePeerData.color1 || '#1a0a2f'} 0%, #030305 100%)` }}
               />
-              <div className="ch-profile-content">
-                <div className="ch-profile-avatar-wrap">
-                  {activePeerData.avatar ? (
-                    <img src={resolveAvatarUrl(activePeerData.avatar)} alt={chatUser} className="ch-profile-avatar" />
-                  ) : (
-                    <div className="ch-profile-avatar ch-profile-avatar--gen"
-                      style={{ background: `linear-gradient(135deg, ${activePeerData.color1 || '#9b5de5'}, ${activePeerData.color2 || '#1a0a2f'})` }}>
-                      {chatUser[0]?.toUpperCase()}
-                    </div>
-                  )}
-                  <div className={`ch-profile-status-dot ${onlineUsers.includes(chatUser) ? 'online' : 'offline'}`} />
-                </div>
+              {/* main scrollable area */}
+              <div className="ch-profile-main">
+                {/* wide horizontal top banner */}
+                <div className="ch-profile-top-banner"
+                  style={{ background: `linear-gradient(135deg, ${activePeerData.color2 || '#050510'} 0%, ${activePeerData.color1 || '#1a0a2f'} 100%)` }}
+                />
+                <div className="ch-profile-content">
+                  <div className="ch-profile-avatar-wrap">
+                    {activePeerData.avatar ? (
+                      <img src={resolveAvatarUrl(activePeerData.avatar)} alt={chatUser} className="ch-profile-avatar" />
+                    ) : (
+                      <div className="ch-profile-avatar ch-profile-avatar--gen"
+                        style={{ background: `linear-gradient(135deg, ${activePeerData.color1 || '#9b5de5'}, ${activePeerData.color2 || '#1a0a2f'})` }}>
+                        {chatUser[0]?.toUpperCase()}
+                      </div>
+                    )}
+                    <div className={`ch-profile-status-dot ${onlineUsers.includes(chatUser) ? 'online' : 'offline'}`} />
+                  </div>
 
                 <div className="ch-profile-name">
                   {activePeerData.display_name || chatUser}
@@ -593,6 +599,7 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
                     <span className="ch-profile-stat-val">{activePeerData.email_verified ? '✓' : '—'}</span>
                     <span className="ch-profile-stat-label">Verified</span>
                   </div>
+                </div>
                 </div>
               </div>
             </div>

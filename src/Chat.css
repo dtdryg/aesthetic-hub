@@ -227,32 +227,50 @@
    PROFILE PANEL (left)
 ══════════════════════════════════════════════════════════════ */
 .ch-profile-panel {
-  width: 260px;
-  min-width: 220px;
+  width: 280px;
+  min-width: 240px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   background: var(--bg2);
   border-right: 1px solid var(--border);
-  overflow-y: auto;
-  scrollbar-width: none;
+  overflow: hidden;
   flex-shrink: 0;
   animation: ch-slide-in 0.2s ease;
+  position: relative;
 }
-.ch-profile-panel::-webkit-scrollbar { display: none; }
 
 @keyframes ch-slide-in {
   from { opacity: 0; transform: translateX(-10px); }
   to   { opacity: 1; transform: translateX(0); }
 }
 
-.ch-profile-banner {
-  height: 80px;
+/* tall vertical side banner */
+.ch-profile-side-banner {
+  width: 6px;
+  flex-shrink: 0;
+  height: 100%;
+  opacity: 0.8;
+}
+
+/* main scrollable column */
+.ch-profile-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.ch-profile-main::-webkit-scrollbar { display: none; }
+
+/* wide horizontal top banner */
+.ch-profile-top-banner {
+  height: 90px;
   width: 100%;
   flex-shrink: 0;
 }
 
 .ch-profile-content {
-  padding: 0 16px 20px;
+  padding: 0 14px 20px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -260,15 +278,16 @@
 
 .ch-profile-avatar-wrap {
   position: relative;
-  margin-top: -28px;
+  margin-top: -30px;
   margin-bottom: 8px;
   width: fit-content;
 }
 
+/* square profile pic */
 .ch-profile-avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 12px;
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
   object-fit: cover;
   border: 3px solid var(--bg2);
   display: block;
@@ -278,7 +297,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 800;
   font-family: 'Syne', sans-serif;
   color: #fff;
@@ -286,10 +305,10 @@
 
 .ch-profile-status-dot {
   position: absolute;
-  bottom: 2px;
-  right: 2px;
-  width: 12px;
-  height: 12px;
+  bottom: -3px;
+  right: -3px;
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
   border: 3px solid var(--bg2);
 }
