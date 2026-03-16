@@ -154,6 +154,15 @@ useEffect(() => {
       }
     };
 
+    pc.onnegotiationneeded = async () => {
+      pc.getSenders().forEach(sender => {
+        if (!sender.track) return;
+        const params = sender.getParameters();
+        if (!params.encodings) params.encodings = [{}];
+        params.encodings[0].maxBitrate = sender.track.kind === 'video' ? 8000000 : 510000;
+        sender.setParameters(params).catch(console.error);
+      });
+    };
     peerRef.current = pc;
     return pc;
   }, []);
@@ -168,9 +177,21 @@ useEffect(() => {
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: mode === 'video',
-      });
+  audio: {
+    echoCancellation: true,
+    noiseSuppression: true,
+    autoGainControl: true,
+    sampleRate: 48000,
+    sampleSize: 16,
+    channelCount: 2,
+  },
+  video: mode === 'video' ? {
+    width: { ideal: 3840 },
+    height: { ideal: 2160 },
+    frameRate: { ideal: 60 },
+    facingMode: 'user',
+  } : false,
+});
       localStreamRef.current = stream;
       setLocalStream(stream);
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
@@ -198,9 +219,21 @@ useEffect(() => {
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: offerData.mode === 'video',
-      });
+  audio: {
+    echoCancellation: true,
+    noiseSuppression: true,
+    autoGainControl: true,
+    sampleRate: 48000,
+    sampleSize: 16,
+    channelCount: 2,
+  },
+  video: offerData.mode === 'video' ? {
+    width: { ideal: 3840 },
+    height: { ideal: 2160 },
+    frameRate: { ideal: 60 },
+    facingMode: 'user',
+  } : false,
+});
       localStreamRef.current = stream;
       setLocalStream(stream);
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
