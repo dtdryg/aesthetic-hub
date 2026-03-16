@@ -1,6 +1,6 @@
 import Top10Crypto from './Top10Crypto';
 import PostChain from './postchain';
-import Campfire from './Campfire';
+
 import { CFG } from './config';
 import { putFile } from './ipfs';
 import { ethers } from 'ethers';
@@ -421,11 +421,14 @@ function App() {
       }
     };
 {view === 'profile' && profileUsername && (
-  <ProfilePage
-    username={profileUsername}
-    loggedInUser={loggedInUser}
-    onBack={() => setView('users')}
-  />
+  <div style={{ background: '#030305', minHeight: '60vh', color: '#fff', padding: 20 }}>
+    <button onClick={() => setView('users')} style={{ color: '#9b5de5', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>← Back</button>
+    <ProfilePage
+      username={profileUsername}
+      loggedInUser={loggedInUser}
+      onBack={() => setView('users')}
+    />
+  </div>
 )}
     if (view === 'crypto') {
       window.addEventListener('scroll', handleScroll);
