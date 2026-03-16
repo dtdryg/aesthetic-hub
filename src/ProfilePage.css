@@ -10,8 +10,9 @@
   position: relative;
   overflow-x: hidden;
   transition: background 0.5s ease;
+  background: #030305;
+  color: #e2e8f0;
 }
-
 /* background video */
 .pp-bg-video {
   position: fixed;
