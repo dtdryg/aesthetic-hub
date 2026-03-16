@@ -22,7 +22,7 @@ import LoginGate from "./LoginGate";
 import BlockchainTest from "./BlockchainTest";
 import DEX from "./components/DEX.jsx";
 import Chat from './Chat';
-
+import ProfilePage from './ProfilePage';
 
 
 function useSpinnerCaret() {
@@ -112,7 +112,7 @@ function App() {
   const [resetEmail, setResetEmail] = useState('');
   const [resetToken, setResetToken] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  
+  const [profileUsername, setProfileUsername] = useState(null);
   const [messages, setMessages] = useState([]);
   const [chatInput, setChatInput] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -420,7 +420,13 @@ function App() {
         fetchCryptoData();
       }
     };
-
+{view === 'profile' && (
+  <ProfilePage
+    username={profileUsername}
+    loggedInUser={loggedInUser}
+    onBack={() => setView('users')}
+  />
+)}
     if (view === 'crypto') {
       window.addEventListener('scroll', handleScroll);
     }
@@ -1217,16 +1223,27 @@ const resetModal = showReset && (
                   )}
                 </span>
                 {loggedInUser !== u.username && (
-                  <button
-                    style={{ marginLeft: '10px' }}
-                    onClick={() => {
-                      setChatUser(u.username);
-                      setView('chat');
-                    }}
-                  >
-                    Chat
-                  </button>
-                )}
+  <button
+    style={{ marginLeft: '10px' }}
+    onClick={() => {
+      setChatUser(u.username);
+      setView('chat');
+    }}
+  >
+    Chat
+  </button>
+)}
+{(
+  <button
+    style={{ marginLeft: '10px' }}
+    onClick={() => {
+      setProfileUsername(u.username);
+      setView('profile');
+    }}
+  >
+    Profile
+  </button>
+)}
               </li>
             ))}
           </ul>

@@ -423,11 +423,20 @@ app.post("/siwe/verify", async (req, res) => {
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/avatars", express.static(path.join(__dirname, "avatars")));
 app.post("/updateProfile", async (req, res) => {
-  const { username, bio, display_name } = req.body;
+  const {
+    username, bio, display_name,
+    profile_accent, color1, color2,
+    profile_font, profile_bg_type, profile_bg,
+    profile_song, profile_banner_anim, profile_playlist
+  } = req.body;
   if (!username) return res.status(400).json({ message: "Username required" });
   const { error } = await supabase
     .from("users")
-    .update({ bio, display_name })
+    .update({
+      bio, display_name, profile_accent, color1, color2,
+      profile_font, profile_bg_type, profile_bg,
+      profile_song, profile_banner_anim, profile_playlist,
+    })
     .eq("username", username);
   if (error) return res.status(500).json({ message: "Update failed" });
   res.json({ message: "Profile updated" });
