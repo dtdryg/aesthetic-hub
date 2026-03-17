@@ -103,7 +103,7 @@ function App() {
   const [email, setEmail] = useState('');
   const [emailPassword, setEmailPassword] = useState('');
   // controls which login type is active
-  const [loginMode, setLoginMode] = useState("web3"); // "web3" | "email" | "username"
+  const [loginMode, setLoginMode] = useState("web2"); // "web3" | "email" | "username"
   const [view, setView] = useState('chat');
   const [showCaret, setShowCaret] = useState(false);
   const caretFrame = useSpinnerCaret();
@@ -820,12 +820,12 @@ localStorage.setItem('loggedInUser', ethAddr);
 
       {loginMode === "web2" && (
   <div className="login-card">
-    <div className="login-title">Web2 {registerMode ? "Register" : "Login"}</div>
+    <div className="login-title"></div>
 
     {/* Username field */}
     
     <CustomCaretInput
-      placeholder="Username"
+      placeholder="       Username"
       value={username}
       onChange={e => setUsername(e.target.value)}
       caretFrame={caretFrame}
@@ -844,7 +844,7 @@ localStorage.setItem('loggedInUser', ethAddr);
     {/* Password */}
     <CustomCaretInput
       type="password"
-      placeholder="Password"
+      placeholder="       Password"
       value={password}
       onChange={e => setPassword(e.target.value)}
       style={{ marginTop: 6 }}
