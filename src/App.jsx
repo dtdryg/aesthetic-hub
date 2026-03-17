@@ -809,6 +809,7 @@ localStorage.setItem('loggedInUser', ethAddr);
       {/* WEB3 */}
       {loginMode === "web3" && (
         <div className="login-card">
+  <div className="login-glow-dot" />
           <div className="login-title">Connect Wallet</div>
           <ConnectButton />
           <button className="siwe-btn" onClick={handleSIWELogin} style={{ marginTop: 10 }}>
