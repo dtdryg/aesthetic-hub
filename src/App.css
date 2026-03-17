@@ -36,3 +36,23 @@
     transform: rotate(360deg);
   }
 }
+.login-glow-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #9b5de5;
+  margin: 0 auto 16px;
+  animation: login-glow-pulse 2s ease-in-out infinite alternate;
+  box-shadow: 0 0 8px #9b5de5, 0 0 20px #9b5de5;
+}
+
+@keyframes login-glow-pulse {
+  from {
+    box-shadow: 0 0 4px #9b5de5, 0 0 10px #9b5de5;
+    opacity: 0.6;
+  }
+  to {
+    box-shadow: 0 0 12px #9b5de5, 0 0 30px #9b5de5, 0 0 50px #7c3aed;
+    opacity: 1;
+  }
+}
