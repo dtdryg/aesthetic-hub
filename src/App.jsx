@@ -420,16 +420,7 @@ function App() {
         fetchCryptoData();
       }
     };
-{view === 'profile' && profileUsername && (
-  <div style={{ background: '#030305', minHeight: '60vh', color: '#fff', padding: 20 }}>
-    <button onClick={() => setView('users')} style={{ color: '#9b5de5', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>← Back</button>
-    <ProfilePage
-      username={profileUsername}
-      loggedInUser={loggedInUser}
-      onBack={() => setView('users')}
-    />
-  </div>
-)}
+
     if (view === 'crypto') {
       window.addEventListener('scroll', handleScroll);
     }
@@ -809,7 +800,7 @@ localStorage.setItem('loggedInUser', ethAddr);
       {/* WEB3 */}
       {loginMode === "web3" && (
         <div className="login-card">
-  <div className="login-glow-dot" />
+  
           <div className="login-title">Connect Wallet</div>
           <ConnectButton />
           <button className="siwe-btn" onClick={handleSIWELogin} style={{ marginTop: 10 }}>
@@ -820,8 +811,9 @@ localStorage.setItem('loggedInUser', ethAddr);
       )}
 
       {loginMode === "web2" && (
-  <div className="login-card">
-    <div className="login-title"></div>
+  <div className="login-card">
+    <div className="login-glow-dot" />
+    <div className="login-title"></div>
 
     {/* Username field */}
     
@@ -1288,7 +1280,16 @@ const resetModal = showReset && (
         </div>
       )}
 
-     
+     {view === 'profile' && profileUsername && (
+  <div style={{ background: '#030305', minHeight: '60vh', color: '#fff', padding: 20 }}>
+    <button onClick={() => setView('users')} style={{ color: '#9b5de5', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>← Back</button>
+    <ProfilePage
+      username={profileUsername}
+      loggedInUser={loggedInUser}
+      onBack={() => setView('users')}
+    />
+  </div>
+)}
 
 {view === 'chat' && (
   <Chat
