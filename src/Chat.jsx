@@ -151,8 +151,11 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
     stream.getTracks().forEach(t => pc.addTrack(t, stream));
 
     pc.ontrack = (e) => {
-      if (remoteVideoRef.current) remoteVideoRef.current.srcObject = e.streams[0];
-    };
+  if (remoteVideoRef.current) {
+    remoteVideoRef.current.srcObject = e.streams[0];
+    remoteVideoRef.current.play().catch(() => {});
+  }
+};
 
     pc.onicecandidate = (e) => {
       if (e.candidate) {
@@ -465,7 +468,7 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
               )}
               {callMode === 'voice' && (
                 <>
-                  <video ref={remoteVideoRef} autoPlay playsInline style={{ display: 'none' }} />
+                  <video ref={remoteVideoRef} autoPlay playsInline style={{ display: 'none' }} volume={1} />
                   <video ref={localVideoRef} autoPlay playsInline muted style={{ display: 'none' }} />
                   <div className="ch-voice-ui">
                     <div className="ch-voice-avatar">{callPeer?.[0]?.toUpperCase()}</div>
