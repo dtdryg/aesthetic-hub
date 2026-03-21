@@ -35,13 +35,22 @@ const io = new Server(server, {
       "http://localhost:5173",
       "http://127.0.0.1:5173",
       "http://localhost:3000",
+      "https://aesthetic-hub-ssf9.vercel.app",
     ],
     methods: ["GET", "POST"],
     credentials: true,
   },
 });
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "https://aesthetic-hub-ssf9.vercel.app",
+  ],
+  credentials: true,
+}));
 app.use(express.json());
 
 // ------------------- SOCKET USER TRACKING -------------------
