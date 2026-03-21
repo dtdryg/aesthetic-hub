@@ -48,16 +48,13 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
     fetch(`${API}/turn-credentials`)
       .then(r => r.json())
       .then(servers => {
-        if (Array.isArray(servers) && servers.length > 0) {
-          setIceServers(servers);
-        }
+        if (Array.isArray(servers) && servers.length > 0) setIceServers(servers);
       })
       .catch(console.error);
   }, []);
 
   useEffect(() => { callPeerRef.current = callPeer; }, [callPeer]);
 
-  // Timer synced to a ref so both sides count from when call actually starts
   useEffect(() => {
     if (callState === 'in-call') {
       callStartTimeRef.current = Date.now();
@@ -71,7 +68,6 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
     return () => clearInterval(callTimerRef.current);
   }, [callState]);
 
-  /* ── MESSAGES ── */
   useEffect(() => {
     if (chatUser && chatUser !== 'group') loadMessages();
     else setMessages([]);
@@ -83,31 +79,21 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
 
   const loadMessages = async () => {
     try {
-      const res = await axios.get(`${API}/messages`, {
-        params: { user1: loggedInUser, user2: chatUser },
-      });
+      const res = await axios.get(`${API}/messages`, { params: { user1: loggedInUser, user2: chatUser } });
       setMessages(res.data);
     } catch (e) { console.error(e); }
   };
 
   useEffect(() => {
     const onPrivate = (msg) => {
-      if (
-        (msg.from === chatUser && msg.to === loggedInUser) ||
-        (msg.from === loggedInUser && msg.to === chatUser)
-      ) {
+      if ((msg.from === chatUser && msg.to === loggedInUser) || (msg.from === loggedInUser && msg.to === chatUser)) {
         setMessages(prev => [...prev, msg]);
       }
     };
-    const onGroup = (msg) => {
-      if (chatUser === 'group') setMessages(prev => [...prev, msg]);
-    };
+    const onGroup = (msg) => { if (chatUser === 'group') setMessages(prev => [...prev, msg]); };
     socket.on('private_message', onPrivate);
     socket.on('chatMessage', onGroup);
-    return () => {
-      socket.off('private_message', onPrivate);
-      socket.off('chatMessage', onGroup);
-    };
+    return () => { socket.off('private_message', onPrivate); socket.off('chatMessage', onGroup); };
   }, [chatUser, loggedInUser]);
 
   useEffect(() => {
@@ -127,15 +113,12 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
       socket.emit('chatMessage', text);
     } else {
       socket.emit('private_message', { to: chatUser, text });
-      try {
-        await axios.post(`${API}/sendMessage`, { from: loggedInUser, to: chatUser, text });
-      } catch (e) { console.error(e); }
+      try { await axios.post(`${API}/sendMessage`, { from: loggedInUser, to: chatUser, text }); }
+      catch (e) { console.error(e); }
     }
   };
 
-  const handleKey = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
-  };
+  const handleKey = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } };
 
   const handleInputChange = (e) => {
     setNewMessage(e.target.value);
@@ -146,25 +129,23 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
     }
   };
 
-  /* ── WebRTC ── */
   const createPeer = useCallback((stream, targetPeer) => {
     const pc = new RTCPeerConnection({ iceServers });
     stream.getTracks().forEach(t => pc.addTrack(t, stream));
 
     pc.ontrack = (e) => {
-  if (remoteVideoRef.current) {
-    remoteVideoRef.current.srcObject = e.streams[0];
-    remoteVideoRef.current.play().catch(() => {});
-  }
-  if (remoteAudioRef.current) {
-    remoteAudioRef.current.srcObject = e.streams[0];
-    remoteAudioRef.current.play().catch(() => {});
-  }
-};
-    pc.onicecandidate = (e) => {
-      if (e.candidate) {
-        socket.emit('webrtc:ice', { to: targetPeer || callPeerRef.current, candidate: e.candidate });
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = e.streams[0];
+        remoteVideoRef.current.play().catch(() => {});
       }
+      if (remoteAudioRef.current) {
+        remoteAudioRef.current.srcObject = e.streams[0];
+        remoteAudioRef.current.play().catch(() => {});
+      }
+    };
+
+    pc.onicecandidate = (e) => {
+      if (e.candidate) socket.emit('webrtc:ice', { to: targetPeer || callPeerRef.current, candidate: e.candidate });
     };
 
     pc.onconnectionstatechange = () => {
@@ -176,12 +157,13 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
   }, [iceServers]);
 
   const getAudioConstraints = () => ({
-  echoCancellation: true,
-  noiseSuppression: false,
-  autoGainControl: false,
-  sampleRate: 48000,
-  channelCount: 2,
-});
+    echoCancellation: true,
+    noiseSuppression: false,
+    autoGainControl: false,
+    sampleRate: 48000,
+    channelCount: 2,
+  });
+
   const getVideoConstraints = () => ({
     width: { ideal: 1280 },
     height: { ideal: 720 },
@@ -196,7 +178,6 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
     setCallPeer(target);
     callPeerRef.current = target;
     setCallState('calling');
-
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: getAudioConstraints(),
@@ -204,7 +185,6 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
       });
       localStreamRef.current = stream;
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
-
       const pc = createPeer(stream, target);
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
@@ -221,7 +201,6 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
     setCallMode(offerData.mode);
     setCallPeer(from);
     callPeerRef.current = from;
-
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: getAudioConstraints(),
@@ -229,19 +208,9 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
       });
       localStreamRef.current = stream;
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
-
       const pc = createPeer(stream, from);
       await pc.setRemoteDescription(new RTCSessionDescription(offerData.offer));
       const answer = await pc.createAnswer();
-      
-senders.forEach(sender => {
-  if (sender.track?.kind === 'audio') {
-    const params = sender.getParameters();
-    if (!params.encodings) params.encodings = [{}];
-    params.encodings[0].maxBitrate = 510000;
-    sender.setParameters(params).catch(console.error);
-  }
-});
       await pc.setLocalDescription(answer);
       socket.emit('webrtc:answer', { to: from, answer });
       setCallState('in-call');
@@ -262,28 +231,15 @@ senders.forEach(sender => {
     const dur = Math.floor((Date.now() - (callStartTimeRef.current || Date.now())) / 1000);
     setLastCallDuration(dur);
     if (peerRef.current) { peerRef.current.close(); peerRef.current = null; }
-    if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach(t => t.stop());
-      localStreamRef.current = null;
-    }
+    if (localStreamRef.current) { localStreamRef.current.getTracks().forEach(t => t.stop()); localStreamRef.current = null; }
     if (localVideoRef.current) localVideoRef.current.srcObject = null;
     if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
     const peer = callPeerRef.current;
     if (peer && !remote) socket.emit('webrtc:call-end', { to: peer });
-    setMessages(prev => [...prev, {
-      system: true,
-      text: `Call ended · ${formatDuration(dur)}`,
-      timestamp: Date.now(),
-    }]);
+    setMessages(prev => [...prev, { system: true, text: `Call ended · ${formatDuration(dur)}`, timestamp: Date.now() }]);
     setCallState('ended');
-    setTimeout(() => {
-      setCallState('idle');
-      setCallPeer(null);
-      callPeerRef.current = null;
-    }, 1000);
-    setMuted(false);
-    setCamOff(false);
-    setScreenSharing(false);
+    setTimeout(() => { setCallState('idle'); setCallPeer(null); callPeerRef.current = null; }, 1000);
+    setMuted(false); setCamOff(false); setScreenSharing(false);
   }, []);
 
   useEffect(() => {
@@ -300,30 +256,17 @@ senders.forEach(sender => {
       }
     };
     const onIce = async ({ candidate }) => {
-      try {
-        if (peerRef.current && candidate)
-          await peerRef.current.addIceCandidate(new RTCIceCandidate(candidate));
-      } catch (e) { console.error('ICE error', e); }
+      try { if (peerRef.current && candidate) await peerRef.current.addIceCandidate(new RTCIceCandidate(candidate)); }
+      catch (e) { console.error('ICE error', e); }
     };
     const onCallEnd = () => {
       const dur = Math.floor((Date.now() - (callStartTimeRef.current || Date.now())) / 1000);
       setLastCallDuration(dur);
       if (peerRef.current) { peerRef.current.close(); peerRef.current = null; }
-      if (localStreamRef.current) {
-        localStreamRef.current.getTracks().forEach(t => t.stop());
-        localStreamRef.current = null;
-      }
-      setMessages(prev => [...prev, {
-        system: true,
-        text: `Call ended · ${formatDuration(dur)}`,
-        timestamp: Date.now(),
-      }]);
+      if (localStreamRef.current) { localStreamRef.current.getTracks().forEach(t => t.stop()); localStreamRef.current = null; }
+      setMessages(prev => [...prev, { system: true, text: `Call ended · ${formatDuration(dur)}`, timestamp: Date.now() }]);
       setCallState('ended');
-      setTimeout(() => {
-        setCallState('idle');
-        setCallPeer(null);
-        callPeerRef.current = null;
-      }, 1000);
+      setTimeout(() => { setCallState('idle'); setCallPeer(null); callPeerRef.current = null; }, 1000);
     };
 
     socket.on('webrtc:offer', onOffer);
@@ -386,6 +329,8 @@ senders.forEach(sender => {
         </div>
       )}
 
+      <audio ref={remoteAudioRef} autoPlay playsInline />
+
       <aside className="ch-sidebar">
         <div className="ch-sidebar-header">
           <span className="ch-sidebar-title">Messages</span>
@@ -410,18 +355,12 @@ senders.forEach(sender => {
             const isOnline = onlineUsers.includes(u.username);
             const isCallUser = callPeer === u.username && isOnCall;
             return (
-              <div
-                key={u.username}
-                className={`ch-tile ${chatUser === u.username ? 'active' : ''} ${isCallUser ? 'on-call' : ''}`}
-                onClick={() => setChatUser(u.username)}
-              >
+              <div key={u.username} className={`ch-tile ${chatUser === u.username ? 'active' : ''} ${isCallUser ? 'on-call' : ''}`} onClick={() => setChatUser(u.username)}>
                 <div className="ch-tile-avatar-wrap">
                   {u.avatar ? (
                     <img src={resolveAvatarUrl(u.avatar)} alt={u.username} className="ch-tile-avatar-img" />
                   ) : (
-                    <div className="ch-tile-avatar ch-tile-avatar--default">
-                      {u.username[0].toUpperCase()}
-                    </div>
+                    <div className="ch-tile-avatar ch-tile-avatar--default">{u.username[0].toUpperCase()}</div>
                   )}
                   <div className={`ch-presence-dot ${isOnline ? 'online' : 'offline'}`} />
                 </div>
@@ -436,8 +375,7 @@ senders.forEach(sender => {
           })
         )}
       </aside>
-<audio ref={remoteAudioRef} autoPlay playsInline />
-<main className="ch-main"></main>
+
       <main className="ch-main">
 
         {callState === 'ringing' && (
@@ -471,7 +409,6 @@ senders.forEach(sender => {
               <span>{callMode === 'video' ? 'Video' : 'Voice'} call with <strong>{callPeer}</strong></span>
               <span className="ch-call-timer">{formatDuration(callDuration)}</span>
             </div>
-
             <div className="ch-video-grid">
               {callMode === 'video' && (
                 <>
@@ -481,33 +418,25 @@ senders.forEach(sender => {
               )}
               {callMode === 'voice' && (
                 <>
-                  <video ref={remoteVideoRef} autoPlay playsInline style={{ display: 'none' }} volume={1} />
+                  <video ref={remoteVideoRef} autoPlay playsInline style={{ display: 'none' }} />
                   <video ref={localVideoRef} autoPlay playsInline muted style={{ display: 'none' }} />
                   <div className="ch-voice-ui">
                     <div className="ch-voice-avatar">{callPeer?.[0]?.toUpperCase()}</div>
                     <p className="ch-voice-name">{callPeer}</p>
                     <p className="ch-voice-timer">{formatDuration(callDuration)}</p>
                     <div className="ch-voice-wave">
-                      {[...Array(7)].map((_, i) => (
-                        <div key={i} className="ch-voice-bar" style={{ animationDelay: `${i * 0.1}s` }} />
-                      ))}
+                      {[...Array(7)].map((_, i) => <div key={i} className="ch-voice-bar" style={{ animationDelay: `${i * 0.1}s` }} />)}
                     </div>
                   </div>
                 </>
               )}
             </div>
             <div className="ch-call-controls">
-              <button className={`ch-ctrl-btn ${muted ? 'active-red' : ''}`} onClick={toggleMute}>
-                {muted ? '🔇' : '🎤'}
-              </button>
+              <button className={`ch-ctrl-btn ${muted ? 'active-red' : ''}`} onClick={toggleMute}>{muted ? '🔇' : '🎤'}</button>
               {callMode === 'video' && (
                 <>
-                  <button className={`ch-ctrl-btn ${camOff ? 'active-red' : ''}`} onClick={toggleCam}>
-                    {camOff ? '📷' : '📹'}
-                  </button>
-                  <button className={`ch-ctrl-btn ${screenSharing ? 'active-purple' : ''}`} onClick={toggleScreen}>
-                    🖥
-                  </button>
+                  <button className={`ch-ctrl-btn ${camOff ? 'active-red' : ''}`} onClick={toggleCam}>{camOff ? '📷' : '📹'}</button>
+                  <button className={`ch-ctrl-btn ${screenSharing ? 'active-purple' : ''}`} onClick={toggleScreen}>🖥</button>
                 </>
               )}
               <button className="ch-ctrl-btn ch-ctrl-end" onClick={() => endCall()}>📵</button>
@@ -519,26 +448,20 @@ senders.forEach(sender => {
 
           {chatUser !== 'group' && activePeerData && (
             <div className="ch-profile-panel">
-              <div className="ch-profile-side-banner"
-                style={{ background: `linear-gradient(180deg, ${activePeerData.color1 || '#1a0a2f'} 0%, #030305 100%)` }}
-              />
+              <div className="ch-profile-side-banner" style={{ background: `linear-gradient(180deg, ${activePeerData.color1 || '#1a0a2f'} 0%, #030305 100%)` }} />
               <div className="ch-profile-main">
-                <div className="ch-profile-top-banner"
-                  style={{ background: `linear-gradient(135deg, ${activePeerData.color2 || '#050510'} 0%, ${activePeerData.color1 || '#1a0a2f'} 100%)` }}
-                />
+                <div className="ch-profile-top-banner" style={{ background: `linear-gradient(135deg, ${activePeerData.color2 || '#050510'} 0%, ${activePeerData.color1 || '#1a0a2f'} 100%)` }} />
                 <div className="ch-profile-content">
                   <div className="ch-profile-avatar-wrap">
                     {activePeerData.avatar ? (
                       <img src={resolveAvatarUrl(activePeerData.avatar)} alt={chatUser} className="ch-profile-avatar" />
                     ) : (
-                      <div className="ch-profile-avatar ch-profile-avatar--gen"
-                        style={{ background: `linear-gradient(135deg, ${activePeerData.color1 || '#9b5de5'}, ${activePeerData.color2 || '#1a0a2f'})` }}>
+                      <div className="ch-profile-avatar ch-profile-avatar--gen" style={{ background: `linear-gradient(135deg, ${activePeerData.color1 || '#9b5de5'}, ${activePeerData.color2 || '#1a0a2f'})` }}>
                         {chatUser[0]?.toUpperCase()}
                       </div>
                     )}
                     <div className={`ch-profile-status-dot ${onlineUsers.includes(chatUser) ? 'online' : 'offline'}`} />
                   </div>
-
                   <div className="ch-profile-name">
                     {activePeerData.display_name || chatUser}
                     {activePeerData.verified && (
@@ -554,29 +477,19 @@ senders.forEach(sender => {
                   <div className={`ch-profile-online ${onlineUsers.includes(chatUser) ? 'on' : 'off'}`}>
                     {onlineUsers.includes(chatUser) ? 'Online' : 'Offline'}
                   </div>
-
-                  {activePeerData.bio && (
-                    <div className="ch-profile-bio">{activePeerData.bio}</div>
-                  )}
-
+                  {activePeerData.bio && <div className="ch-profile-bio">{activePeerData.bio}</div>}
                   {callState === 'idle' && (
                     <div className="ch-profile-actions">
-                      <button className="ch-profile-call-btn ch-profile-call-btn--voice" onClick={() => startCall('voice')}>
-                        Voice
-                      </button>
-                      <button className="ch-profile-call-btn ch-profile-call-btn--video" onClick={() => startCall('video')}>
-                        Video
-                      </button>
+                      <button className="ch-profile-call-btn ch-profile-call-btn--voice" onClick={() => startCall('voice')}>Voice</button>
+                      <button className="ch-profile-call-btn ch-profile-call-btn--video" onClick={() => startCall('video')}>Video</button>
                     </div>
                   )}
-
                   {callState === 'in-call' && callPeer === chatUser && (
                     <div className="ch-profile-incall">
                       <div className="ch-profile-incall-dot" />
                       <span>In call — {formatDuration(callDuration)}</span>
                     </div>
                   )}
-
                   <div className="ch-profile-stats">
                     <div className="ch-profile-stat">
                       <span className="ch-profile-stat-val">{messages.length}</span>
@@ -640,17 +553,13 @@ senders.forEach(sender => {
                     )}
                     <div className="ch-bubble-wrap">
                       {!isMe && showAvatar && <span className="ch-bubble-sender">{sender}</span>}
-                      <div className={`ch-bubble ${isMe ? 'ch-bubble--me' : 'ch-bubble--them'}`}>
-                        {m.text}
-                      </div>
+                      <div className={`ch-bubble ${isMe ? 'ch-bubble--me' : 'ch-bubble--them'}`}>{m.text}</div>
                       <span className="ch-bubble-ts">{ts(m.timestamp)}</span>
                     </div>
                   </div>
                 );
               })}
-              {isTyping && (
-                <div className="ch-typing"><span /><span /><span /></div>
-              )}
+              {isTyping && <div className="ch-typing"><span /><span /><span /></div>}
               <div ref={messagesEndRef} />
             </div>
 
@@ -664,13 +573,7 @@ senders.forEach(sender => {
                 rows={1}
                 disabled={!chatUser}
               />
-              <button
-                className="ch-composer-send"
-                onClick={handleSend}
-                disabled={!newMessage.trim() || !chatUser}
-              >
-                ↑
-              </button>
+              <button className="ch-composer-send" onClick={handleSend} disabled={!newMessage.trim() || !chatUser}>↑</button>
             </div>
           </div>
         </div>
