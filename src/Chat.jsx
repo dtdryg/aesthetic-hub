@@ -45,11 +45,15 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
   const [iceServers, setIceServers] = useState([{ urls: 'stun:stun.l.google.com:19302' }]);
 
   useEffect(() => {
-    fetch(`${API}/turn-credentials`)
-      .then(r => r.json())
-      .then(servers => setIceServers(servers))
-      .catch(console.error);
-  }, []);
+  fetch(`${API}/turn-credentials`)
+    .then(r => r.json())
+    .then(servers => {
+      if (Array.isArray(servers) && servers.length > 0) {
+        setIceServers(servers);
+      }
+    })
+    .catch(console.error);
+}, []);
 
   useEffect(() => { callPeerRef.current = callPeer; }, [callPeer]);
 
