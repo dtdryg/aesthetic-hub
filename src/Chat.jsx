@@ -40,6 +40,7 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
   const pendingOfferRef = useRef(null);
   const callTimerRef = useRef(null);
   const callStartTimeRef = useRef(null);
+  const remoteAudioRef = useRef(null);
 
   const [iceServers, setIceServers] = useState([{ urls: 'stun:stun.l.google.com:19302' }]);
 
@@ -155,8 +156,11 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
     remoteVideoRef.current.srcObject = e.streams[0];
     remoteVideoRef.current.play().catch(() => {});
   }
+  if (remoteAudioRef.current) {
+    remoteAudioRef.current.srcObject = e.streams[0];
+    remoteAudioRef.current.play().catch(() => {});
+  }
 };
-
     pc.onicecandidate = (e) => {
       if (e.candidate) {
         socket.emit('webrtc:ice', { to: targetPeer || callPeerRef.current, candidate: e.candidate });
@@ -424,7 +428,8 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
           })
         )}
       </aside>
-
+<audio ref={remoteAudioRef} autoPlay playsInline />
+<main className="ch-main"></main>
       <main className="ch-main">
 
         {callState === 'ringing' && (
