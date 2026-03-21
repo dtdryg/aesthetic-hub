@@ -278,10 +278,7 @@ app.post("/sendMessage", async (req, res) => {
   const { error } = await supabase.from("messages").insert(msg);
   if (error) return res.status(500).json({ message: "Message failed" });
 
-  const targets = userToSockets.get(to);
-  if (targets) targets.forEach(sid => io.to(sid).emit("message", msg));
-  const senderSockets = userToSockets.get(from);
-  if (senderSockets) senderSockets.forEach(sid => io.to(sid).emit("message", msg));
+
 
   res.json({ message: "Message sent" });
 });

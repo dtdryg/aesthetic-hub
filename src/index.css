@@ -210,7 +210,7 @@ body {
   flex-shrink: 0;
   position: sticky;
   top: 0;
-  background-color: black;
+  background-color: transparent;
   z-index: 10;
 }
 .logo-row {
@@ -788,6 +788,7 @@ body:not(.is-logged-in) .container > :not(#login-gate):not(.reset-modal) {
   pointer-events: none !important;
   user-select: none !important;
   opacity: 0 !important;
+pointer-events: none !important;
 }
 
 /* When logged IN: gate disappears automatically (React unmounts it) */
@@ -1071,4 +1072,45 @@ textarea:focus::after {
     box-shadow: 0 0 12px #9b5de5, 0 0 30px #9b5de5, 0 0 50px #7c3aed;
     opacity: 1;
   }
+}
+
+.login-switch button.active {
+  border: 1px solid #d59aff;
+  box-shadow: 0 0 10px rgba(213, 154, 255, 0.7), 0 0 30px #7c3aed, 0 0 50px rgba(124, 58, 237, 0.3);
+  border-radius: 8px;
+}
+.login-switch button.active {
+  border: 1px solid #d59aff;
+  box-shadow: 0 0 10px rgba(213, 154, 255, 0.7);
+  border-radius: 8px;
+}
+.login-switch button.active {
+  border: 1px solid #d59aff;
+  box-shadow: 0 0 10px rgba(213, 154, 255, 0.7), 0 0 30px #7c3aed, 0 0 50px rgba(124, 58, 237, 0.3);
+  border-radius: 8px;
+  animation: login-btn-pulse 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes login-btn-pulse {
+  from {
+    box-shadow: 0 0 8px rgba(213, 154, 255, 0.5), 0 0 20px #7c3aed, 0 0 35px rgba(124, 58, 237, 0.2);
+  }
+  to {
+    box-shadow: 0 0 16px rgba(213, 154, 255, 0.9), 0 0 45px #9b5de5, 0 0 80px rgba(124, 58, 237, 0.5);
+  }
+}
+
+.top-tabs .tab:not([data-view="chat"]) {
+  display: none;
+}
+.top-tabs {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.top-tabs .tab {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }

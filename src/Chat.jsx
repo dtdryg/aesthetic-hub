@@ -119,12 +119,10 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
     if (chatUser === 'group') {
       socket.emit('chatMessage', text);
     } else {
-      const msg = { from: loggedInUser, to: chatUser, text, timestamp: Date.now() };
-      setMessages(prev => [...prev, msg]);
       socket.emit('private_message', { to: chatUser, text });
-      try {
-        await axios.post(`${API}/sendMessage`, { from: loggedInUser, to: chatUser, text });
-      } catch (e) { console.error(e); }
+try {
+  await axios.post(`${API}/sendMessage`, { from: loggedInUser, to: chatUser, text });
+} catch (e) { console.error(e); }
     }
   };
 

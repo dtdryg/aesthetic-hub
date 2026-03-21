@@ -27,20 +27,22 @@
 /* ── Root ─────────────────────────────────────────────────────── */
 .ch-root {
   display: flex;
-  height: calc(100vh - 56px);
-  background: var(--bg);
-  font-family: 'DM Mono', monospace;
-  color: var(--text);
-  overflow: hidden;
+  height: calc(100vh - 110px);
+  width: 100%;
   position: relative;
+  z-index: 10;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  overflow: hidden;
 }
 
 /* ══════════════════════════════════════════════════════════════
    SIDEBAR
 ══════════════════════════════════════════════════════════════ */
 .ch-sidebar {
-  width: 240px;
-  min-width: 200px;
+  width: 320px;
+  min-width: 280px;
   display: flex;
   flex-direction: column;
   background: var(--bg2);

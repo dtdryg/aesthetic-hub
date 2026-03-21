@@ -97,6 +97,7 @@ const CustomCaretInput = ({ caretFrame, value, ...props }) => {
 
 function App() {
   // at top-level of component
+const [showAllTabs, setShowAllTabs] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const typingStopTimer = useRef(null); // for our own debounce when WE'RE the typist
   const [typingMap, setTypingMap] = useState({}); // { [username]: true/false }
@@ -157,12 +158,7 @@ function App() {
     }
   }, [address]);
 
-  useEffect(() => {
-    const onChatMsg = (msg) => setMessages(prev => [...prev, msg]);
-    socket.on('chatMessage', onChatMsg);
-    return () => socket.off('chatMessage', onChatMsg);
-  }, []);
-
+  
   useEffect(() => {
     const onTypingUpdate = ({ from, isTyping }) => {
       setTypingMap(prev => ({ ...prev, [from]: !!isTyping }));
@@ -233,6 +229,16 @@ function App() {
   useEffect(() => {
     document.body.setAttribute('data-view', view || '');
   }, [view]);
+useEffect(() => {
+  const handleScroll = () => {
+    const logo = document.querySelector('.logo-area');
+    if (!logo) return;
+    logo.style.opacity = window.scrollY > 40 ? '0' : '1';
+    logo.style.pointerEvents = window.scrollY > 40 ? 'none' : 'auto';
+  };
+  window.addEventListener('scroll', handleScroll);
+  return () => window.removeEventListener('scroll', handleScroll);
+}, []);
   useEffect(() => {
     if (loggedInUser) {
       document.body.classList.add("is-logged-in");
@@ -594,7 +600,7 @@ const handleWeb2Login = async () => {
     setLoggedInUser(res.data.username);
 localStorage.setItem('loggedInUser', res.data.username);
 
-    setView("feed");
+    setView("chat");
     socket.emit("presence:join", res.data.username);
     alert("Logged in via Web2.");
   } catch (err) {
@@ -666,7 +672,7 @@ localStorage.setItem('loggedInUser', res.data.username);
       const ethAddr = verifyRes.data.address;
       setLoggedInUser(ethAddr);
 localStorage.setItem('loggedInUser', ethAddr);
-      setView("feed");
+      setView("chat");
 
       try { socket.emit('presence:join', ethAddr); } catch {}
 
@@ -812,7 +818,7 @@ localStorage.setItem('loggedInUser', ethAddr);
 
       {loginMode === "web2" && (
   <div className="login-card">
-    <div className="login-glow-dot" />
+    
     <div className="login-title"></div>
 
     {/* Username field */}
@@ -942,30 +948,14 @@ const resetModal = showReset && (
 </div>
 
       <div style={{ display: 'flex', gap: '10px', margin: '10px' }}>
-        <div className="top-tabs">
-          <button className={`tab ${view==='feed' ? 'active' : ''}`} onClick={() => setView('feed')}>Feed</button>
-          <button className={`tab ${view==='users' ? 'active' : ''}`} onClick={() => setView('users')}>Users</button>
-          <button className={`tab ${view==='chat' ? 'active' : ''}`} onClick={() => setView('chat')}>Chat</button>
-          <button className={`tab ${view==='crypto' ? 'active' : ''}`} onClick={() => setView('crypto')}>Crypto</button>
-          <button className={`tab ${view==='purple-room' ? 'active' : ''}`} onClick={() => setView('purple-room')}>The Purple Room</button>
-          <button className={`tab ${view==='campfire' ? 'active' : ''}`} onClick={() => setView('campfire')}>The Campfire</button>
-          <button
-            className={`tab aesth ${view==='aesth' ? 'active' : ''}`}
-            onClick={() => setView('aesth')}
-          >
-            $AESTH
-          </button>
-        </div>
-      </div>
-      <button 
-        className={`tab ${view==='dex' ? 'active' : ''}`} 
-        onClick={() => setView('dex')}
-      >
-        DEX
-      </button>
-      {view === 'dex' && (
-  <DEX />
-)}
+  <div className="top-tabs">
+    <button className={`tab ${view==='feed' ? 'active' : ''}`} onClick={() => setView('feed')}>Feed</button>
+    <button className={`tab ${view==='chat' ? 'active' : ''}`} onClick={() => setView('chat')}>Chat</button>
+    <button className={`tab ${view==='users' ? 'active' : ''}`} onClick={() => setView('users')}>Users</button>
+    <button className={`tab ${view==='profile' ? 'active' : ''}`} onClick={() => { setProfileUsername(loggedInUser); setView('profile'); }}>My Profile</button>
+  </div>
+</div>
+      
 
 
       {view === 'campfire' && (
@@ -1281,16 +1271,12 @@ const resetModal = showReset && (
       )}
 
      {view === 'profile' && profileUsername && (
-  <div style={{ background: '#030305', minHeight: '60vh', color: '#fff', padding: 20 }}>
-    <button onClick={() => setView('users')} style={{ color: '#9b5de5', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>← Back</button>
-    <ProfilePage
-      username={profileUsername}
-      loggedInUser={loggedInUser}
-      onBack={() => setView('users')}
-    />
-  </div>
+  <ProfilePage
+    username={profileUsername}
+    loggedInUser={loggedInUser}
+    onBack={() => setView(profileUsername === loggedInUser ? 'chat' : 'users')}
+  />
 )}
-
 {view === 'chat' && (
   <Chat
     loggedInUser={loggedInUser}
