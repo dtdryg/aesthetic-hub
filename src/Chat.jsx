@@ -176,16 +176,12 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
   }, [iceServers]);
 
   const getAudioConstraints = () => ({
-  echoCancellation: false,
+  echoCancellation: true,
   noiseSuppression: false,
   autoGainControl: false,
   sampleRate: 48000,
-  sampleSize: 16,
   channelCount: 2,
-  latency: 0,
-  volume: 1.0,
 });
-
   const getVideoConstraints = () => ({
     width: { ideal: 1280 },
     height: { ideal: 720 },
@@ -237,7 +233,7 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
       const pc = createPeer(stream, from);
       await pc.setRemoteDescription(new RTCSessionDescription(offerData.offer));
       const answer = await pc.createAnswer();
-      const senders = pc.getSenders();
+      
 senders.forEach(sender => {
   if (sender.track?.kind === 'audio') {
     const params = sender.getParameters();
