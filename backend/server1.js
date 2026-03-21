@@ -29,6 +29,8 @@ const supabase = createClient(
 const app = express();
 const PORT = 4000;
 const server = http.createServer(app);
+server.keepAliveTimeout = 120000;
+server.headersTimeout = 120000;
 const io = new Server(server, {
   cors: {
     origin: [
@@ -498,6 +500,13 @@ app.post("/verifyEmail", async (req, res) => {
 // ------------------- SOCKET.IO -------------------
 io.on("connection", (socket) => {
   socket.on("join", ({ username }) => {
+    const pingInterval = setInterval(() => {
+    socket.emit('ping');
+  }, 25000);
+
+  socket.on('disconnect', () => {
+    clearInterval(pingInterval);
+  });
     if (!username) return;
     socketToUser.set(socket.id, username);
     if (!userToSockets.has(username)) userToSockets.set(username, new Set());
