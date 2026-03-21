@@ -176,12 +176,15 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
   }, [iceServers]);
 
   const getAudioConstraints = () => ({
-    echoCancellation: true,
-    noiseSuppression: false,
-    autoGainControl: false,
-    sampleRate: 48000,
-    channelCount: 2,
-  });
+  echoCancellation: false,
+  noiseSuppression: false,
+  autoGainControl: false,
+  sampleRate: 48000,
+  sampleSize: 16,
+  channelCount: 2,
+  latency: 0,
+  volume: 1.0,
+});
 
   const getVideoConstraints = () => ({
     width: { ideal: 1280 },
@@ -234,6 +237,15 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
       const pc = createPeer(stream, from);
       await pc.setRemoteDescription(new RTCSessionDescription(offerData.offer));
       const answer = await pc.createAnswer();
+      const senders = pc.getSenders();
+senders.forEach(sender => {
+  if (sender.track?.kind === 'audio') {
+    const params = sender.getParameters();
+    if (!params.encodings) params.encodings = [{}];
+    params.encodings[0].maxBitrate = 510000;
+    sender.setParameters(params).catch(console.error);
+  }
+});
       await pc.setLocalDescription(answer);
       socket.emit('webrtc:answer', { to: from, answer });
       setCallState('in-call');
