@@ -220,12 +220,12 @@ try {
     }
   };
 
-  const answerCall = async (offerData) => {
+
+    const answerCall = async (offerData) => {
     const from = offerData.from;
     setCallMode(offerData.mode);
     setCallPeer(from);
     callPeerRef.current = from;
-    setCallState('in-call');
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -248,6 +248,7 @@ try {
       });
       localStreamRef.current = stream;
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+      setCallState('in-call');
 
       const pc = createPeer(stream, from);
       await pc.setRemoteDescription(new RTCSessionDescription(offerData.offer));
@@ -292,7 +293,7 @@ answer.sdp = sdp;
       setCallState('idle');
       setCallPeer(null);
       callPeerRef.current = null;
-    }, 4000); // show ended screen for 4 seconds
+    }, 1000); // show ended screen for 4 seconds
     setMuted(false);
     setCamOff(false);
     setScreenSharing(false);
@@ -318,20 +319,25 @@ answer.sdp = sdp;
       } catch (e) { console.error('ICE error', e); }
     };
     const onCallEnd = () => {
-      setLastCallDuration(callDuration);
-      if (peerRef.current) { peerRef.current.close(); peerRef.current = null; }
-      if (localStreamRef.current) {
-        localStreamRef.current.getTracks().forEach(t => t.stop());
-        localStreamRef.current = null;
-      }
-      setCallState('ended');
-      setTimeout(() => {
-        setCallState('idle');
-        setCallPeer(null);
-        callPeerRef.current = null;
-      }, 4000);
-    };
-
+  const dur = callDuration;
+  setLastCallDuration(dur);
+  if (peerRef.current) { peerRef.current.close(); peerRef.current = null; }
+  if (localStreamRef.current) {
+    localStreamRef.current.getTracks().forEach(t => t.stop());
+    localStreamRef.current = null;
+  }
+  setMessages(prev => [...prev, {
+    system: true,
+    text: `Call ended · ${formatDuration(dur)}`,
+    timestamp: Date.now(),
+  }]);
+  setCallState('ended');
+  setTimeout(() => {
+    setCallState('idle');
+    setCallPeer(null);
+    callPeerRef.current = null;
+  }, 1000);
+};
     socket.on('webrtc:offer', onOffer);
     socket.on('webrtc:answer', onAnswer);
     socket.on('webrtc:ice', onIce);
@@ -388,7 +394,7 @@ answer.sdp = sdp;
       {/* ── CALL ENDED SCREEN ── */}
       {callState === 'ended' && (
         <div className="ch-call-ended">
-          <div className="ch-ended-icon">📵</div>
+          <div className="ch-ended-icon"></div>
           <p className="ch-ended-who">{callPeer} ended the call</p>
           <p className="ch-ended-duration">Call lasted {formatDuration(lastCallDuration)}</p>
         </div>
@@ -652,6 +658,11 @@ answer.sdp = sdp;
               {messages.map((m, i) => {
                 const isMe = m.from === loggedInUser || m.username === loggedInUser;
                 const sender = m.from || m.username || '?';
+                if (m.system) return (
+  <div key={i} style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 10, letterSpacing: '0.08em', padding: '6px 0', fontFamily: 'DM Mono, monospace' }}>
+    {m.text}
+  </div>
+);
                 const showAvatar = !isMe && (i === 0 || (messages[i-1]?.from || messages[i-1]?.username) !== sender);
                 return (
                   <div key={i} className={`ch-bubble-row ${isMe ? 'me' : 'them'}`}>
