@@ -205,11 +205,8 @@ try {
       const pc = createPeer(stream, target);
       const offer = await pc.createOffer();
 // Force Opus codec at max bitrate
-const sdp = offer.sdp.replace(
-  /a=fmtp:111 /g,
-  'a=fmtp:111 maxplaybackrate=48000;stereo=1;sprop-stereo=1;maxaveragebitrate=510000;useinbandfec=1;cbr=0;'
-);
-offer.sdp = sdp;
+
+
       await pc.setLocalDescription(offer);
       socket.emit('webrtc:offer', { to: target, offer, mode, from: loggedInUser });
     } catch (err) {
