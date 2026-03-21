@@ -22,9 +22,8 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
   const [isTyping, setIsTyping] = useState(false);
   const typingTimer = useRef(null);
 
-  // call state
-  const [callState, setCallState] = useState('idle'); // idle | calling | ringing | in-call | ended
-  const [callMode, setCallMode] = useState('video');
+  const [callState, setCallState] = useState('idle');
+  const [callMode, setCallMode] = useState('voice');
   const [callPeer, setCallPeer] = useState(null);
   const [callDuration, setCallDuration] = useState(0);
   const [lastCallDuration, setLastCallDuration] = useState(0);
@@ -32,7 +31,6 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
   const [camOff, setCamOff] = useState(false);
   const [screenSharing, setScreenSharing] = useState(false);
 
-  // refs
   const peerRef = useRef(null);
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -41,27 +39,31 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
   const callPeerRef = useRef(null);
   const pendingOfferRef = useRef(null);
   const callTimerRef = useRef(null);
+  const callStartTimeRef = useRef(null);
 
   const [iceServers, setIceServers] = useState([{ urls: 'stun:stun.l.google.com:19302' }]);
 
   useEffect(() => {
-  fetch(`${API}/turn-credentials`)
-    .then(r => r.json())
-    .then(servers => {
-      if (Array.isArray(servers) && servers.length > 0) {
-        setIceServers(servers);
-      }
-    })
-    .catch(console.error);
-}, []);
+    fetch(`${API}/turn-credentials`)
+      .then(r => r.json())
+      .then(servers => {
+        if (Array.isArray(servers) && servers.length > 0) {
+          setIceServers(servers);
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   useEffect(() => { callPeerRef.current = callPeer; }, [callPeer]);
 
-  // call duration timer
+  // Timer synced to a ref so both sides count from when call actually starts
   useEffect(() => {
     if (callState === 'in-call') {
+      callStartTimeRef.current = Date.now();
       setCallDuration(0);
-      callTimerRef.current = setInterval(() => setCallDuration(d => d + 1), 1000);
+      callTimerRef.current = setInterval(() => {
+        setCallDuration(Math.floor((Date.now() - callStartTimeRef.current) / 1000));
+      }, 1000);
     } else {
       clearInterval(callTimerRef.current);
     }
@@ -124,9 +126,9 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
       socket.emit('chatMessage', text);
     } else {
       socket.emit('private_message', { to: chatUser, text });
-try {
-  await axios.post(`${API}/sendMessage`, { from: loggedInUser, to: chatUser, text });
-} catch (e) { console.error(e); }
+      try {
+        await axios.post(`${API}/sendMessage`, { from: loggedInUser, to: chatUser, text });
+      } catch (e) { console.error(e); }
     }
   };
 
@@ -162,19 +164,24 @@ try {
       if (['disconnected', 'failed', 'closed'].includes(pc.connectionState)) endCall();
     };
 
-    pc.onnegotiationneeded = async () => {
-      pc.getSenders().forEach(sender => {
-        if (!sender.track) return;
-        const params = sender.getParameters();
-        if (!params.encodings) params.encodings = [{}];
-        params.encodings[0].maxBitrate = sender.track.kind === 'video' ? 8000000 : 510000;
-        sender.setParameters(params).catch(console.error);
-      });
-    };
-
     peerRef.current = pc;
     return pc;
   }, [iceServers]);
+
+  const getAudioConstraints = () => ({
+    echoCancellation: true,
+    noiseSuppression: false,
+    autoGainControl: false,
+    sampleRate: 48000,
+    channelCount: 2,
+  });
+
+  const getVideoConstraints = () => ({
+    width: { ideal: 1280 },
+    height: { ideal: 720 },
+    frameRate: { ideal: 30 },
+    facingMode: 'user',
+  });
 
   const startCall = async (mode) => {
     if (chatUser === 'group') return;
@@ -186,31 +193,14 @@ try {
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: false,
-          sampleRate: 48000,
-          sampleSize: 16,
-          channelCount: 2,
-          latency: 0,
-          volume: 1.0,
-        },
-        video: mode === 'video' ? {
-          width: { ideal: 3840 },
-          height: { ideal: 2160 },
-          frameRate: { ideal: 60 },
-          facingMode: 'user',
-        } : false,
+        audio: getAudioConstraints(),
+        video: mode === 'video' ? getVideoConstraints() : false,
       });
       localStreamRef.current = stream;
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
 
       const pc = createPeer(stream, target);
       const offer = await pc.createOffer();
-// Force Opus codec at max bitrate
-
-
       await pc.setLocalDescription(offer);
       socket.emit('webrtc:offer', { to: target, offer, mode, from: loggedInUser });
     } catch (err) {
@@ -220,8 +210,7 @@ try {
     }
   };
 
-
-    const answerCall = async (offerData) => {
+  const answerCall = async (offerData) => {
     const from = offerData.from;
     setCallMode(offerData.mode);
     setCallPeer(from);
@@ -229,37 +218,18 @@ try {
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: false,
-          sampleRate: 48000,
-          sampleSize: 16,
-          channelCount: 2,
-          latency: 0,
-          volume: 1.0,
-        },
-        video: offerData.mode === 'video' ? {
-          width: { ideal: 3840 },
-          height: { ideal: 2160 },
-          frameRate: { ideal: 60 },
-          facingMode: 'user',
-        } : false,
+        audio: getAudioConstraints(),
+        video: offerData.mode === 'video' ? getVideoConstraints() : false,
       });
       localStreamRef.current = stream;
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
-      setCallState('in-call');
 
       const pc = createPeer(stream, from);
       await pc.setRemoteDescription(new RTCSessionDescription(offerData.offer));
       const answer = await pc.createAnswer();
-const sdp = answer.sdp.replace(
-  /a=fmtp:111 /g,
-  'a=fmtp:111 maxplaybackrate=48000;stereo=1;sprop-stereo=1;maxaveragebitrate=510000;useinbandfec=1;cbr=0;'
-);
-answer.sdp = sdp;
       await pc.setLocalDescription(answer);
       socket.emit('webrtc:answer', { to: from, answer });
+      setCallState('in-call');
     } catch (err) {
       console.error('answer error', err);
       setCallState('idle');
@@ -274,7 +244,8 @@ answer.sdp = sdp;
   };
 
   const endCall = useCallback((remote = false) => {
-    setLastCallDuration(callDuration);
+    const dur = Math.floor((Date.now() - (callStartTimeRef.current || Date.now())) / 1000);
+    setLastCallDuration(dur);
     if (peerRef.current) { peerRef.current.close(); peerRef.current = null; }
     if (localStreamRef.current) {
       localStreamRef.current.getTracks().forEach(t => t.stop());
@@ -284,20 +255,21 @@ answer.sdp = sdp;
     if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
     const peer = callPeerRef.current;
     if (peer && !remote) socket.emit('webrtc:call-end', { to: peer });
-    socket.off('webrtc:offer');
-    socket.off('webrtc:answer');
-    socket.off('webrtc:ice');
-    socket.off('webrtc:call-end');
+    setMessages(prev => [...prev, {
+      system: true,
+      text: `Call ended · ${formatDuration(dur)}`,
+      timestamp: Date.now(),
+    }]);
     setCallState('ended');
     setTimeout(() => {
       setCallState('idle');
       setCallPeer(null);
       callPeerRef.current = null;
-    }, 1000); // show ended screen for 4 seconds
+    }, 1000);
     setMuted(false);
     setCamOff(false);
     setScreenSharing(false);
-  }, [callDuration]);
+  }, []);
 
   useEffect(() => {
     const onOffer = (data) => {
@@ -319,25 +291,26 @@ answer.sdp = sdp;
       } catch (e) { console.error('ICE error', e); }
     };
     const onCallEnd = () => {
-  const dur = callDuration;
-  setLastCallDuration(dur);
-  if (peerRef.current) { peerRef.current.close(); peerRef.current = null; }
-  if (localStreamRef.current) {
-    localStreamRef.current.getTracks().forEach(t => t.stop());
-    localStreamRef.current = null;
-  }
-  setMessages(prev => [...prev, {
-    system: true,
-    text: `Call ended · ${formatDuration(dur)}`,
-    timestamp: Date.now(),
-  }]);
-  setCallState('ended');
-  setTimeout(() => {
-    setCallState('idle');
-    setCallPeer(null);
-    callPeerRef.current = null;
-  }, 1000);
-};
+      const dur = Math.floor((Date.now() - (callStartTimeRef.current || Date.now())) / 1000);
+      setLastCallDuration(dur);
+      if (peerRef.current) { peerRef.current.close(); peerRef.current = null; }
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach(t => t.stop());
+        localStreamRef.current = null;
+      }
+      setMessages(prev => [...prev, {
+        system: true,
+        text: `Call ended · ${formatDuration(dur)}`,
+        timestamp: Date.now(),
+      }]);
+      setCallState('ended');
+      setTimeout(() => {
+        setCallState('idle');
+        setCallPeer(null);
+        callPeerRef.current = null;
+      }, 1000);
+    };
+
     socket.on('webrtc:offer', onOffer);
     socket.on('webrtc:answer', onAnswer);
     socket.on('webrtc:ice', onIce);
@@ -348,7 +321,7 @@ answer.sdp = sdp;
       socket.off('webrtc:ice', onIce);
       socket.off('webrtc:call-end', onCallEnd);
     };
-  }, [chatUser, loggedInUser, callDuration]);
+  }, [chatUser, loggedInUser]);
 
   const toggleMute = () => {
     if (!localStreamRef.current) return;
@@ -391,26 +364,20 @@ answer.sdp = sdp;
   return (
     <div className="ch-root">
 
-      {/* ── CALL ENDED SCREEN ── */}
       {callState === 'ended' && (
         <div className="ch-call-ended">
-          <div className="ch-ended-icon"></div>
-          <p className="ch-ended-who">{callPeer} ended the call</p>
-          <p className="ch-ended-duration">Call lasted {formatDuration(lastCallDuration)}</p>
+          <p className="ch-ended-who">Call ended</p>
+          <p className="ch-ended-duration">{formatDuration(lastCallDuration)}</p>
         </div>
       )}
 
-      {/* ── SIDEBAR ── */}
       <aside className="ch-sidebar">
         <div className="ch-sidebar-header">
           <span className="ch-sidebar-title">Messages</span>
           <span className="ch-online-count">{onlineUsers.length} online</span>
         </div>
 
-        <div
-          className={`ch-tile ${chatUser === 'group' ? 'active' : ''}`}
-          onClick={() => setChatUser('group')}
-        >
+        <div className={`ch-tile ${chatUser === 'group' ? 'active' : ''}`} onClick={() => setChatUser('group')}>
           <div className="ch-tile-avatar ch-tile-avatar--group">⬡</div>
           <div className="ch-tile-info">
             <span className="ch-tile-name">Global</span>
@@ -446,7 +413,7 @@ answer.sdp = sdp;
                 <div className="ch-tile-info">
                   <span className="ch-tile-name">{u.username}</span>
                   <span className="ch-tile-sub">
-                    {isCallUser ? `🔴 On call ${formatDuration(callDuration)}` : isOnline ? 'Online' : 'Offline'}
+                    {isCallUser ? `On call ${formatDuration(callDuration)}` : isOnline ? 'Online' : 'Offline'}
                   </span>
                 </div>
               </div>
@@ -455,10 +422,8 @@ answer.sdp = sdp;
         )}
       </aside>
 
-      {/* ── MAIN ── */}
       <main className="ch-main">
 
-        {/* RINGING */}
         {callState === 'ringing' && (
           <div className="ch-call-overlay">
             <div className="ch-call-modal">
@@ -473,7 +438,6 @@ answer.sdp = sdp;
           </div>
         )}
 
-        {/* CALLING */}
         {callState === 'calling' && (
           <div className="ch-call-overlay">
             <div className="ch-call-modal">
@@ -484,10 +448,8 @@ answer.sdp = sdp;
           </div>
         )}
 
-        {/* IN CALL */}
         {callState === 'in-call' && (
           <div className="ch-call-active">
-            {/* call duration bar */}
             <div className="ch-call-topbar">
               <div className="ch-call-topbar-dot" />
               <span>{callMode === 'video' ? 'Video' : 'Voice'} call with <strong>{callPeer}</strong></span>
@@ -537,19 +499,14 @@ answer.sdp = sdp;
           </div>
         )}
 
-        {/* ── SPLIT SCREEN: profile left + chat right ── */}
         <div className={`ch-split ${chatUser === 'group' ? 'ch-split--group' : ''}`}>
 
-          {/* LEFT — profile panel */}
           {chatUser !== 'group' && activePeerData && (
             <div className="ch-profile-panel">
-              {/* tall vertical side banner */}
               <div className="ch-profile-side-banner"
                 style={{ background: `linear-gradient(180deg, ${activePeerData.color1 || '#1a0a2f'} 0%, #030305 100%)` }}
               />
-              {/* main scrollable area */}
               <div className="ch-profile-main">
-                {/* wide horizontal top banner */}
                 <div className="ch-profile-top-banner"
                   style={{ background: `linear-gradient(135deg, ${activePeerData.color2 || '#050510'} 0%, ${activePeerData.color1 || '#1a0a2f'} 100%)` }}
                 />
@@ -566,64 +523,60 @@ answer.sdp = sdp;
                     <div className={`ch-profile-status-dot ${onlineUsers.includes(chatUser) ? 'online' : 'offline'}`} />
                   </div>
 
-                <div className="ch-profile-name">
-                  {activePeerData.display_name || chatUser}
-                  {activePeerData.verified && (
-                    <span className="ch-verified-badge" title="Verified">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                        <polygon points="12,2 15,8 22,9 17,14 18,21 12,18 6,21 7,14 2,9 9,8" fill="#0a0a0a" stroke="#c77dff" strokeWidth="1.5"/>
-                        <text x="12" y="16" textAnchor="middle" fontSize="9" fill="#fff">⚡</text>
-                      </svg>
-                    </span>
+                  <div className="ch-profile-name">
+                    {activePeerData.display_name || chatUser}
+                    {activePeerData.verified && (
+                      <span className="ch-verified-badge" title="Verified">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                          <polygon points="12,2 15,8 22,9 17,14 18,21 12,18 6,21 7,14 2,9 9,8" fill="#0a0a0a" stroke="#c77dff" strokeWidth="1.5"/>
+                          <text x="12" y="16" textAnchor="middle" fontSize="9" fill="#fff">⚡</text>
+                        </svg>
+                      </span>
+                    )}
+                  </div>
+                  <div className="ch-profile-username">@{chatUser}</div>
+                  <div className={`ch-profile-online ${onlineUsers.includes(chatUser) ? 'on' : 'off'}`}>
+                    {onlineUsers.includes(chatUser) ? 'Online' : 'Offline'}
+                  </div>
+
+                  {activePeerData.bio && (
+                    <div className="ch-profile-bio">{activePeerData.bio}</div>
                   )}
-                </div>
-                <div className="ch-profile-username">@{chatUser}</div>
-                <div className={`ch-profile-online ${onlineUsers.includes(chatUser) ? 'on' : 'off'}`}>
-                  {onlineUsers.includes(chatUser) ? 'Online' : 'Offline'}
-                </div>
 
-                {activePeerData.bio && (
-                  <div className="ch-profile-bio">{activePeerData.bio}</div>
-                )}
+                  {callState === 'idle' && (
+                    <div className="ch-profile-actions">
+                      <button className="ch-profile-call-btn ch-profile-call-btn--voice" onClick={() => startCall('voice')}>
+                        Voice
+                      </button>
+                      <button className="ch-profile-call-btn ch-profile-call-btn--video" onClick={() => startCall('video')}>
+                        Video
+                      </button>
+                    </div>
+                  )}
 
-                {/* call buttons */}
-                {callState === 'idle' && (
-                  <div className="ch-profile-actions">
-                    <button className="ch-profile-call-btn ch-profile-call-btn--voice" onClick={() => startCall('voice')}>
-                      Voice
-                    </button>
-                    <button className="ch-profile-call-btn ch-profile-call-btn--video" onClick={() => startCall('video')}>
-                      Video
-                    </button>
-                  </div>
-                )}
+                  {callState === 'in-call' && callPeer === chatUser && (
+                    <div className="ch-profile-incall">
+                      <div className="ch-profile-incall-dot" />
+                      <span>In call — {formatDuration(callDuration)}</span>
+                    </div>
+                  )}
 
-                {callState === 'in-call' && callPeer === chatUser && (
-                  <div className="ch-profile-incall">
-                    <div className="ch-profile-incall-dot" />
-                    <span>In call — {formatDuration(callDuration)}</span>
+                  <div className="ch-profile-stats">
+                    <div className="ch-profile-stat">
+                      <span className="ch-profile-stat-val">{messages.length}</span>
+                      <span className="ch-profile-stat-label">Messages</span>
+                    </div>
+                    <div className="ch-profile-stat">
+                      <span className="ch-profile-stat-val">{activePeerData.email_verified ? '✓' : '—'}</span>
+                      <span className="ch-profile-stat-label">Verified</span>
+                    </div>
                   </div>
-                )}
-
-                {/* stats */}
-                <div className="ch-profile-stats">
-                  <div className="ch-profile-stat">
-                    <span className="ch-profile-stat-val">{messages.length}</span>
-                    <span className="ch-profile-stat-label">Messages</span>
-                  </div>
-                  <div className="ch-profile-stat">
-                    <span className="ch-profile-stat-val">{activePeerData.email_verified ? '✓' : '—'}</span>
-                    <span className="ch-profile-stat-label">Verified</span>
-                  </div>
-                </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* RIGHT — chat panel */}
           <div className="ch-chat-panel">
-            {/* header */}
             <div className="ch-header">
               {chatUser === 'group' ? (
                 <div className="ch-header-info">
@@ -639,7 +592,6 @@ answer.sdp = sdp;
                   <div className="ch-header-sub">{onlineUsers.includes(chatUser) ? '● Online' : '● Offline'}</div>
                 </div>
               )}
-              {/* call indicator in header when on call */}
               {callState === 'in-call' && callPeer === chatUser && (
                 <div className="ch-header-call-badge">
                   <span className="ch-header-call-dot" />
@@ -648,7 +600,6 @@ answer.sdp = sdp;
               )}
             </div>
 
-            {/* messages */}
             <div className="ch-messages">
               {messages.length === 0 && (
                 <div className="ch-messages-empty">
@@ -656,13 +607,13 @@ answer.sdp = sdp;
                 </div>
               )}
               {messages.map((m, i) => {
+                if (m.system) return (
+                  <div key={i} style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 10, letterSpacing: '0.08em', padding: '6px 0', fontFamily: 'DM Mono, monospace' }}>
+                    {m.text}
+                  </div>
+                );
                 const isMe = m.from === loggedInUser || m.username === loggedInUser;
                 const sender = m.from || m.username || '?';
-                if (m.system) return (
-  <div key={i} style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 10, letterSpacing: '0.08em', padding: '6px 0', fontFamily: 'DM Mono, monospace' }}>
-    {m.text}
-  </div>
-);
                 const showAvatar = !isMe && (i === 0 || (messages[i-1]?.from || messages[i-1]?.username) !== sender);
                 return (
                   <div key={i} className={`ch-bubble-row ${isMe ? 'me' : 'them'}`}>
@@ -687,7 +638,6 @@ answer.sdp = sdp;
               <div ref={messagesEndRef} />
             </div>
 
-            {/* composer */}
             <div className="ch-composer">
               <textarea
                 className="ch-composer-input"
