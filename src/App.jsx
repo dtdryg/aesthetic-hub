@@ -1277,15 +1277,14 @@ const resetModal = showReset && (
     onBack={() => setView(profileUsername === loggedInUser ? 'chat' : 'users')}
   />
 )}
-{view === 'chat' && (
+<div style={{ display: view === 'chat' ? 'flex' : 'none', flex: 1 }}>
   <Chat
     loggedInUser={loggedInUser}
     users={users}
     onlineUsers={onlineUsers}
     resolveAvatarUrl={resolveAvatarUrl}
   />
-)}
-
+</div>
       
     </div>
   );

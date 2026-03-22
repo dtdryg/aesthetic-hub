@@ -41,7 +41,9 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
   const callTimerRef = useRef(null);
   const callStartTimeRef = useRef(null);
   const remoteAudioRef = useRef(null);
-
+const analyserRef = useRef(null);
+const animFrameRef = useRef(null);
+const barsRef = useRef([]);
   const [iceServers, setIceServers] = useState([{ urls: 'stun:stun.l.google.com:19302' }]);
 
   useEffect(() => {
@@ -163,7 +165,27 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
     sampleRate: 48000,
     channelCount: 2,
   });
+const startVisualizer = (stream) => {
+  const ctx = new AudioContext();
+  const source = ctx.createMediaStreamSource(stream);
+  const analyser = ctx.createAnalyser();
+  analyser.fftSize = 256;
+  source.connect(analyser);
+  analyserRef.current = analyser;
 
+  const draw = () => {
+    animFrameRef.current = requestAnimationFrame(draw);
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteFrequencyData(data);
+    const avg = data.slice(0, 10).reduce((a, b) => a + b, 0) / 10;
+    barsRef.current.forEach((bar, i) => {
+      if (!bar) return;
+      const height = Math.max(3, (avg / 255) * 26 * (0.5 + Math.random() * 0.5));
+      bar.style.height = `${height}px`;
+    });
+  };
+  draw();
+};
   const getVideoConstraints = () => ({
     width: { ideal: 1280 },
     height: { ideal: 720 },
@@ -185,6 +207,7 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
       });
       localStreamRef.current = stream;
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+      startVisualizer(stream);
       const pc = createPeer(stream, target);
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
@@ -208,6 +231,8 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
       });
       localStreamRef.current = stream;
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+      startVisualizer(stream);
+
       const pc = createPeer(stream, from);
       await pc.setRemoteDescription(new RTCSessionDescription(offerData.offer));
       const answer = await pc.createAnswer();
@@ -250,11 +275,13 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
       setCallState('ringing');
     };
     const onAnswer = async ({ answer }) => {
-      if (peerRef.current) {
-        await peerRef.current.setRemoteDescription(new RTCSessionDescription(answer));
-        setCallState('in-call');
-      }
-    };
+  if (peerRef.current) {
+    await peerRef.current.setRemoteDescription(new RTCSessionDescription(answer));
+    setCallState('in-call');
+    // Notify answerer that caller is now in-call too
+    socket.emit('webrtc:call-accepted', { to: callPeerRef.current });
+  }
+};
     const onIce = async ({ candidate }) => {
       try { if (peerRef.current && candidate) await peerRef.current.addIceCandidate(new RTCIceCandidate(candidate)); }
       catch (e) { console.error('ICE error', e); }
@@ -273,11 +300,13 @@ export default function Chat({ loggedInUser, users = [], onlineUsers = [], resol
     socket.on('webrtc:answer', onAnswer);
     socket.on('webrtc:ice', onIce);
     socket.on('webrtc:call-end', onCallEnd);
+    socket.on('webrtc:call-accepted', () => setCallState('in-call'));
     return () => {
       socket.off('webrtc:offer', onOffer);
       socket.off('webrtc:answer', onAnswer);
       socket.off('webrtc:ice', onIce);
       socket.off('webrtc:call-end', onCallEnd);
+      socket.off('webrtc:call-accepted');
     };
   }, [chatUser, loggedInUser]);
 

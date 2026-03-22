@@ -625,7 +625,10 @@ io.on("connection", (socket) => {
     const targets = userToSockets.get(to);
     if (targets) targets.forEach(sid => io.to(sid).emit("webrtc:call-end"));
   });
-
+socket.on("webrtc:call-accepted", ({ to }) => {
+  const targets = userToSockets.get(to);
+  if (targets) targets.forEach(sid => io.to(sid).emit("webrtc:call-accepted"));
+});
   socket.on("disconnect", () => {
     const user = socketToUser.get(socket.id);
     if (user) {
